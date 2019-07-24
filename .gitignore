@@ -1,0 +1,4 @@
+# Ignore build directory and build artifacts
+/build/
+# Ignore game file
+*.nes
