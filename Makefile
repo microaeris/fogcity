@@ -14,6 +14,7 @@ CCFLAGS = --add-source $(IFLAGS)
 SOURCES = $(wildcard $(SRC_DIR)/*.c)
 # OBJS = $(wildcard $(OUT_DIR)/*.o)
 HEADERS = $(wildcard include/*.h)
+GAME_PATH = $(OUT_DIR)/$(GAME_TARGET)
 
 
 #### Print debugging ####
@@ -32,13 +33,16 @@ HEADERS = $(wildcard include/*.h)
 
 #### Rules ####
 
-all: $(OUT_DIR)/$(GAME_TARGET)
+all: $(GAME_PATH)
 
 clean:
 # Delete all files under ./build.
 # `-f` = force
 # `-v` = verbose
 	@rm -fv $(OUT_DIR)/*
+
+run: $(GAME_PATH)
+	@fceux --pal 1 $<
 
 $(OUT_DIR)/crt0.o: $(SRC_DIR)/crt0.s
 	ca65 $< -o $@ $(CAFLAGS)
