@@ -15,13 +15,20 @@ SOURCES = $(wildcard $(SRC_DIR)/*.c)
 # OBJS = $(wildcard $(OUT_DIR)/*.o)
 HEADERS = $(wildcard include/*.h)
 GAME_PATH = $(OUT_DIR)/$(GAME_TARGET)
+SRCS_TO_OBJS = $(SOURCES:$(SRC_DIR)%.c=$(OUT_DIR)%.o)
+SRCS_TO_ASMS = $(SOURCES:$(SRC_DIR)%.c=$(OUT_DIR)%.s)
 
 
 #### Print debugging ####
 
 # $(info CAFLAGS="$(CAFLAGS)")
 # $(info SOURCES="$(SOURCES)")
-
+# $(info The * is "$*")
+# $(info The @ is "$@")
+# $(info The < is "$<")
+# $(info The ^ is "$^")
+# $(info Headers is "$(HEADERS)")
+# $(info Sources is "$(SOURCES)")
 
 #### Special Built-in Targets ####
 
@@ -48,14 +55,8 @@ $(OUT_DIR)/crt0.o: $(SRC_DIR)/crt0.s
 	ca65 $< -o $@ $(CAFLAGS)
 
 %.o: $(SOURCES) $(HEADERS)
-	cc65 -Oi $< -o $(SOURCES:$(SRC_DIR)%.c=$(OUT_DIR)%.s) $(CCFLAGS)
-	ca65 $(SOURCES:$(SRC_DIR)%.c=$(OUT_DIR)%.s) -o $(SOURCES:$(SRC_DIR)%.c=$(OUT_DIR)%.o) $(CAFLAGS)
+	cc65 -Oi $< -o $(SRCS_TO_ASMS) $(CCFLAGS)
+	ca65 $(SRCS_TO_ASMS) -o $(SRCS_TO_OBJS) $(CAFLAGS)
 
-$(OUT_DIR)/%.nes: $(SOURCES:$(SRC_DIR)%.c=$(OUT_DIR)%.o) $(OUT_DIR)/crt0.o
-# $(info The * is "$*")
-# $(info The @ is "$@")
-# $(info The < is "$<")
-# $(info The ^ is "$^")
-# $(info Headers is "$(HEADERS)")
-# $(info Sources is "$(SOURCES)")
+$(OUT_DIR)/%.nes: $(SRCS_TO_OBJS) $(OUT_DIR)/crt0.o
 	ld65 -C $(SRC_DIR)/nrom_32k_vert.cfg -o $@ $^ nes.lib
