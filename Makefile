@@ -12,7 +12,7 @@ CAFLAGS = $(IFLAGS)
 CCFLAGS = --add-source $(IFLAGS)
 # Select all `.c` files under the source directory
 SOURCES = $(wildcard $(SRC_DIR)/*.c)
-OBJS = $(wildcard $(OUT_DIR)/*.o)
+# OBJS = $(wildcard $(OUT_DIR)/*.o)
 HEADERS = $(wildcard include/*.h)
 
 
@@ -40,16 +40,18 @@ clean:
 # `-v` = verbose
 	@rm -fv $(OUT_DIR)/*
 
-crt0.o: $(SRC_DIR)/crt0.s
-	ca65 $< -o $(OUT_DIR)/$@ $(CAFLAGS)
+$(OUT_DIR)/crt0.o: $(SRC_DIR)/crt0.s
+	ca65 $< -o $@ $(CAFLAGS)
 
 %.o: $(SOURCES) $(HEADERS)
-	$(info The star is "$*")
-	$(info The at is "$@")
-	$(info Headers is "$(HEADERS)")
-	$(info Sources is "$(SOURCES)")
-	cc65 -Oi $< -o $*.s $(CCFLAGS)
-	ca65 $*.s -o $@ $(CAFLAGS)
+	cc65 -Oi $< -o $(SOURCES:$(SRC_DIR)%.c=$(OUT_DIR)%.s) $(CCFLAGS)
+	ca65 $(SOURCES:$(SRC_DIR)%.c=$(OUT_DIR)%.s) -o $(SOURCES:$(SRC_DIR)%.c=$(OUT_DIR)%.o) $(CAFLAGS)
 
-%.nes: $(OBJS) $(OUT_DIR)/crt0.o
+$(OUT_DIR)/%.nes: $(SOURCES:$(SRC_DIR)%.c=$(OUT_DIR)%.o) $(OUT_DIR)/crt0.o
+# $(info The * is "$*")
+# $(info The @ is "$@")
+# $(info The < is "$<")
+# $(info The ^ is "$^")
+# $(info Headers is "$(HEADERS)")
+# $(info Sources is "$(SOURCES)")
 	ld65 -C $(SRC_DIR)/nrom_32k_vert.cfg -o $@ $^ nes.lib
