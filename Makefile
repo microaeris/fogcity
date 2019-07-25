@@ -12,11 +12,10 @@ CAFLAGS = $(IFLAGS)
 CCFLAGS = --add-source $(IFLAGS)
 # Select all `.c` files under the source directory
 SOURCES = $(wildcard $(SRC_DIR)/*.c)
-# OBJS = $(wildcard $(OUT_DIR)/*.o)
 HEADERS = $(wildcard include/*.h)
 GAME_PATH = $(OUT_DIR)/$(GAME_TARGET)
+# Convert list of all `.c` source files to `.o` files in output dir.
 SRCS_TO_OBJS = $(SOURCES:$(SRC_DIR)%.c=$(OUT_DIR)%.o)
-SRCS_TO_ASMS = $(SOURCES:$(SRC_DIR)%.c=$(OUT_DIR)%.s)
 
 
 #### Print debugging ####
@@ -30,12 +29,14 @@ SRCS_TO_ASMS = $(SOURCES:$(SRC_DIR)%.c=$(OUT_DIR)%.s)
 # $(info Headers is "$(HEADERS)")
 # $(info Sources is "$(SOURCES)")
 
+
 #### Special Built-in Targets ####
 
 # Why is `all` a part of the phony target?
 .PHONY: clean all
 
-.PRECIOUS: *.o
+# Don't delete intermediate `*.o` files
+.PRECIOUS: $(OUT_DIR)/%.o
 
 
 #### Rules ####
@@ -54,9 +55,10 @@ run: $(GAME_PATH)
 $(OUT_DIR)/crt0.o: $(SRC_DIR)/crt0.s
 	ca65 $< -o $@ $(CAFLAGS)
 
-%.o: $(SOURCES) $(HEADERS)
-	cc65 -Oi $< -o $(SRCS_TO_ASMS) $(CCFLAGS)
-	ca65 $(SRCS_TO_ASMS) -o $(SRCS_TO_OBJS) $(CAFLAGS)
+# FIXME - We're rebuilding every source file any time any source file changes.
+$(OUT_DIR)/%.o: $(SOURCES) $(HEADERS)
+	cc65 -Oi $(SRC_DIR)/$*.c -o $(OUT_DIR)/$*.s $(CCFLAGS)
+	ca65 $(OUT_DIR)/$*.s -o $@ $(CAFLAGS)
 
 $(OUT_DIR)/%.nes: $(SRCS_TO_OBJS) $(OUT_DIR)/crt0.o
 	ld65 -C $(SRC_DIR)/nrom_32k_vert.cfg -o $@ $^ nes.lib

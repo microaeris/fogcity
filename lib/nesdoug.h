@@ -2,9 +2,9 @@
 // v 1.01
 
 // Why am I doing so much with a vram_buffer? This is an automated system, which
-// works when the screen is on. You can write to the buffer at any time. 
-// During NMI / v-blank, it automatically writes to the PPU. 
-// You don't have to worry about timing those writes. And, more importantly, 
+// works when the screen is on. You can write to the buffer at any time.
+// During NMI / v-blank, it automatically writes to the PPU.
+// You don't have to worry about timing those writes. And, more importantly,
 // you shouldn't have to turn the screen off...
 // allowing us to make smooth scrolling games.
 
@@ -110,16 +110,16 @@ void __fastcall__ set_mt_pointer(const char * metatiles);
 
 void __fastcall__ buffer_1_mt(int ppu_address, char metatile);
 // will push 1 metatile and 0 attribute bytes to the vram_buffer
-// make sure to set_vram_buffer(), and clear_vram_buffer(), 
-// and set_mt_pointer() 
+// make sure to set_vram_buffer(), and clear_vram_buffer(),
+// and set_mt_pointer()
 // "metatile" should be 0-50, like the metatile data
 
 
 void __fastcall__ buffer_4_mt(int ppu_address, char index);
 // will push 4 metatiles (2x2 box) and 1 attribute byte to the vram_buffer
 // this affects a 32x32 px area of the screen, and pushes 17 bytes to the vram_buffer.
-// make sure to set_vram_buffer(), and clear_vram_buffer(), 
-// set_data_pointer(), and set_mt_pointer() 
+// make sure to set_vram_buffer(), and clear_vram_buffer(),
+// set_data_pointer(), and set_mt_pointer()
 // "index" is which starting byte in the room data, to convert to tiles.
 // use index = (y & 0xf0) + (x >> 4); where x 0-255 and y 0-239;
 // index should be 0-239, like the room data it represents

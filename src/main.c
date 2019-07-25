@@ -1,31 +1,15 @@
-/*	example code for cc65, for NES
- *  writing a full screen from RLE compressed .h file
- *  -can only be done with rendering off
- *	using neslib
- *	Doug Fraker 2018
- */
-
-
 #include "lib/neslib.h"
 #include "lib/nesdoug.h"
 #include "nes_st/bg_test.h"
 
-
-
 const unsigned char palette[]={
-0x0f, 0x17, 0x27, 0x36,
-0,0,0,0,
-0,0,0,0,
-0,0,0,0
+	0x0f, 0x17, 0x27, 0x36,
+	0,0,0,0,
+	0,0,0,0,
+	0,0,0,0
 };
 
-
-
-
-
-
 void main (void) {
-
 	ppu_off(); // screen off
 
 	pal_bg(palette); //	load the palette
@@ -40,11 +24,8 @@ void main (void) {
 
 	ppu_on_all(); // turn on screen
 
-
 	while (1){
 		// infinite loop
 		// game code can go here later.
-
 	}
 }
-
