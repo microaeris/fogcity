@@ -1,3 +1,7 @@
+
+#ifndef NESLIB_H
+#define NESLIB_H
+
 //NES hardware-dependent functions by Shiru (shiru@mail.ru)
 //Feel free to do anything you want with this code, consider it Public Domain
 //nesdoug version, minor changes %%
@@ -300,3 +304,4 @@ void __fastcall__ delay(unsigned char frames);
 #define MSB(x)			(((x)>>8))
 #define LSB(x)			(((x)&0xff))
 
+#endif /* NESLIB_H */
