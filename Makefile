@@ -16,7 +16,8 @@ HEADERS = $(wildcard include/*.h)
 GAME_PATH = $(OUT_DIR)/$(GAME_TARGET)
 # Convert list of all `.c` source files to `.o` files in output dir.
 SRCS_TO_OBJS = $(SOURCES:$(SRC_DIR)%.c=$(OUT_DIR)%.o)
-
+# CONFIG_FILE=cfg/mmc5.cfg
+CONFIG_FILE=cfg/nrom_32k_vert.cfg
 
 #### Print debugging ####
 
@@ -60,5 +61,7 @@ $(OUT_DIR)/%.o: $(SOURCES) $(HEADERS)
 	cc65 -Oi $(SRC_DIR)/$*.c -o $(OUT_DIR)/$*.s $(CCFLAGS)
 	ca65 $(OUT_DIR)/$*.s -o $@ $(CAFLAGS)
 
-$(OUT_DIR)/%.nes: $(SRCS_TO_OBJS) $(OUT_DIR)/crt0.o
-	ld65 -C $(SRC_DIR)/nrom_32k_vert.cfg -o $@ $^ nes.lib
+$(OUT_DIR)/%.nes: $(SRCS_TO_OBJS) $(OUT_DIR)/crt0.o | $(CONFIG_FILE)
+# -m: Generate map file
+# -C: Config file. aka ld65's linker script.
+	ld65 -C $(CONFIG_FILE) -m $(OUT_DIR)/$*.map -o $@ $^ nes.lib
