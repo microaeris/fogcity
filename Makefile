@@ -16,8 +16,8 @@ HEADERS = $(wildcard include/*.h)
 GAME_PATH = $(OUT_DIR)/$(GAME_TARGET)
 # Convert list of all `.c` source files to `.o` files in output dir.
 SRCS_TO_OBJS = $(SOURCES:$(SRC_DIR)%.c=$(OUT_DIR)%.o)
-# CONFIG_FILE=cfg/mmc5.cfg
-CONFIG_FILE=cfg/nrom_32k_vert.cfg
+CONFIG_FILE=cfg/mmc5.cfg
+
 
 #### Print debugging ####
 

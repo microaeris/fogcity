@@ -274,6 +274,7 @@ sounds_data:
    	.word irq	;$fffe irq / brk
 
 
-.segment "CHARS"
+; FIXME - the bg_test asset is too big to fit into one bank.
+; .segment "CHR_00"
 
-	.incbin "nes_st/bg_test.chr"
+; 	.incbin "nes_st/bg_test.chr"
