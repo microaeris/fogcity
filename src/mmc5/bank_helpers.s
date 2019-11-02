@@ -106,6 +106,6 @@ _set_nmi_chr_tile_bank:
 
 ; for split screens with different CHR bank at top... disable it
 _unset_nmi_chr_tile_bank:
-    lda #NO_CHR_BANK
+    lda #PRG_BANK_0
     sta nmiChrTileBank
     rts

@@ -141,7 +141,8 @@ _exit:
     lda NAMETABLE_HORIZ
     jsr _set_mirroring
 
-    ; FIXME -- need to figure out what the valid values to write to these registers are. wiki unclear.........
+    ; FIXME -- need to figure out what the valid values to write to
+    ; these registers are. wiki unclear.........
     lda #$00
     jsr _set_prg_bank_0
 
@@ -278,7 +279,7 @@ detectNTSC:
 
     jmp _main           ;no parameters
 
-    .include "mcc5/mmc5_macros.s"
+    .include "mmc5/mmc5_macros.s"
     .include "mmc5/mmc5_cfg.s"
     .include "mmc5/bank_helpers.s"
     .include "lib/neslib.s"
