@@ -11,11 +11,11 @@ FILL_MODE_TILE_REG      = $5106
 FILL_MODE_COLOR_REG     = $5107
 
 ; PRG Bank Switching Registers
-PRG_BANK_0_REG          = $5113  ; Always RAM
-PRG_BANK_1_REG          = $5114
-PRG_BANK_2_REG          = $5115
-PRG_BANK_3_REG          = $5116
-PRG_BANK_4_REG          = $5117  ; Always ROM
+PRG_BANK_0_REG          = $5113  ; Mode 3 $6000-$7FFF, Always RAM
+PRG_BANK_1_REG          = $5114  ; Mode 3 $8000-$9FFF
+PRG_BANK_2_REG          = $5115  ; Mode 3 $A000-$BFFF
+PRG_BANK_3_REG          = $5116  ; Mode 3 $C000-$DFFF
+PRG_BANK_4_REG          = $5117  ; Mode 3 $E000-$FFFF, Always ROM
 
 ; CHR Bank Switching Registers
 CHR_BANK_0_REG          = $5120

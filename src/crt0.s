@@ -131,38 +131,30 @@ _exit:
     stx DMC_FREQ
     stx PPU_CTRL        ;no NMI
 
-; MMC5 reset
-    lda PRG_MODE_3       ; FIXME - remove this set since mode 3 is default?
-    jsr _set_prg_mode
+; ; MMC5 reset
+;     lda #PRG_MODE_3       ; FIXME - remove this set since mode 3 is default?
+;     jsr _set_prg_mode
 
-    lda CHR_MODE_1
-    jsr _set_chr_mode
+;     lda #CHR_MODE_1
+;     jsr _set_chr_mode
 
-    lda NAMETABLE_HORIZ
-    jsr _set_mirroring
+;     lda #NAMETABLE_HORIZ
+;     jsr _set_mirroring
 
-    ; FIXME -- need to figure out what the valid values to write to
-    ; these registers are. wiki unclear.........
-    lda #$00
-    jsr _set_prg_bank_0
+;     lda #$00
+;     jsr _set_prg_bank_1
 
-    lda #$01
-    jsr _set_prg_bank_1
+;     lda #$2A
+;     jsr _set_prg_bank_2
 
-    lda #$02
-    jsr _set_prg_bank_2
+;     lda #$54
+;     jsr _set_prg_bank_3
 
-    lda #$03
-    jsr _set_prg_bank_3
+;     lda #$00 ;CHR bank #0 for first tile set
+;     jsr _set_chr_bank_0
 
-    lda #$04
-    jsr _set_prg_bank_4
-
-    lda #$00 ;CHR bank #0 for first tileset
-    jsr _set_chr_bank_0
-
-    lda #$01 ;CHR bank #1 for second tileset
-    jsr _set_chr_bank_1
+;     lda #$01 ;CHR bank #1 for second tile set
+;     jsr _set_chr_bank_1
 
 initPPU:
     bit PPU_STATUS

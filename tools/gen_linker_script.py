@@ -6,6 +6,7 @@ CHR_FORMAT = "CHR_%02X: start = $0000, size = $1000, file = %%O, fill = yes;"
 SEGMENT_CHR_FORMAT = "CHR_%02X:   load = CHR_%02X,         type = ro;"
 SEGMENT_BANK_FORMAT = "BANK_%02X:  load = PRG_%02X,         type = ro,  \
 define = yes;"
+DECLARE_PRG_SEGMENT = ".segment \"BANK_%02X\""
 
 # Minus one to account for the static PRG bank
 NUM_PRG_BANKS = 128 - 1
@@ -40,6 +41,9 @@ def main():
 
     for i in range(NUM_PRG_BANKS):
         print(SEGMENT_BANK_FORMAT % (i, i))
+
+    for i in range(NUM_PRG_BANKS):
+        print(DECLARE_PRG_SEGMENT % i)
 
 
 if __name__ == '__main__':
