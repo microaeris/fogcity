@@ -110,8 +110,8 @@ DATA_PTR:           .res 2
     .byte $4e,$45,$53,$1a ; NES<EOF>
     .byte <NES_PRG_BANKS
     .byte <NES_CHR_BANKS
-    .byte <NES_MIRRORING|(<NES_MAPPER<<4)
-    .byte <NES_MAPPER&$00  ; iNES format
+    .byte <NES_MIRRORING|(<NES_MAPPER<<4)  ; Flag 6
+    .byte <NES_MAPPER&$F0  ; iNES format
     .res 3,0
     .byte $41,$45,$52,$49,$53 ; AERIS
 
