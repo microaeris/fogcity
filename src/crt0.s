@@ -1,4 +1,4 @@
-; Startup code for cc65 and Shiru's NES library
+; Startup code for cc65, MMC5, and Shiru's NES library
 ; based on code by Groepaz/Hitmen <groepaz@gmx.net>, Ullrich von Bassewitz <uz@cc65.org>
 
 FT_BASE_ADR     = $0100     ;page in RAM, should be $xx00
@@ -55,10 +55,16 @@ VRAM_BUF    =$0700
 .segment "CHR_01"
 .segment "BANK_00"
     .byte $42, $41, $4e, $4b, $30, $30
+    .byte $FF
+.import __BANK_00_LOAD__
+    .byte >__BANK_00_LOAD__, <__BANK_00_LOAD__
 .segment "BANK_01"
     .byte $42, $41, $4e, $4b, $30, $31
 .segment "BANK_02"
     .byte $42, $41, $4e, $4b, $30, $32
+    .byte $FF
+.import __BANK_02_LOAD__
+    .byte >__BANK_02_LOAD__, <__BANK_02_LOAD__
 .segment "BANK_03"
 .segment "BANK_04"
 .segment "BANK_05"
@@ -263,14 +269,14 @@ _exit:
 ;     lda #PRG_MODE_3       ; FIXME - remove this set since mode 3 is default?
 ;     jsr _set_prg_mode
 
-;     lda #CHR_MODE_1
-;     jsr _set_chr_mode
+    lda #CHR_MODE_1
+    jsr _set_chr_mode
 
-;     lda #NAMETABLE_HORIZ
-;     jsr _set_mirroring
+    lda #NAMETABLE_HORIZ
+    jsr _set_mirroring
 
-;     lda #$00
-;     jsr _set_prg_bank_1
+    lda #$00
+    jsr _set_prg_bank_1
 
 ;     lda #$2A
 ;     jsr _set_prg_bank_2
@@ -278,11 +284,11 @@ _exit:
 ;     lda #$54
 ;     jsr _set_prg_bank_3
 
-;     lda #$00 ;CHR bank #0 for first tile set
-;     jsr _set_chr_bank_0
+    lda #$00 ;CHR bank #0 for first tile set
+    jsr _set_chr_bank_0
 
-;     lda #$01 ;CHR bank #1 for second tile set
-;     jsr _set_chr_bank_1
+    lda #$01 ;CHR bank #1 for second tile set
+    jsr _set_chr_bank_1
 
 initPPU:
     bit PPU_STATUS

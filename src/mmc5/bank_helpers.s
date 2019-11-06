@@ -19,6 +19,48 @@
 ; FIXME - figure out what to do with these two functions
 .export _set_nmi_chr_tile_bank, _unset_nmi_chr_tile_bank
 
+BANK_SIZE_HI = $20  ; High byte of $2000, the PRG bank size in Mode 3
+
+
+; Calculate the 16-bit address of the bank
+; param a: bank index to load
+;          [0x00, 0x7E]
+; notes: ((bank_idx * size of each bank) + start addr)
+;        but I only care about the high byte of this operation.
+;    ldx #>__BANK_00_LOAD__
+_calc_bank_addr:
+    sta MULT_16_LO_REG
+    ldx #BANK_SIZE_HI
+    stx MULT_16_HI_REG
+    lda MULT_16_LO_REG
+    clc
+    adc #BANK_SIZE_HI                ; FIXME - this value is wrong. needs to be hex $8000
+    txa  ; x holds the low byte
+    lda MULT_16_HI_REG
+    adc #$0
+    ; Loop 1
+    tay  ; y holds the high byte
+    txa
+    asl A
+    tax
+    tya
+    rol A
+    ; Loop 2
+    tay
+    txa
+    asl A
+    tax
+    tya
+    rol A
+    ; Loop 3
+    tay
+    txa
+    asl A
+    tax
+    tya
+    rol A
+    rts
+
 
 ; Setters for PRG bank switching
 ; param a: bank index to load
@@ -34,19 +76,21 @@
 ; param a: [0x00, 0x29]
 _set_prg_bank_1:
     sta PRG_BANK_1
-    ; ldx #>__BANK_00_LOAD__  ; FIXME - how does this work? loading a 16 bit number into x?
+    jsr _calc_bank_addr
     sta PRG_BANK_1_REG
     rts
 
 ; param a: [0x2A, 0x53]
 _set_prg_bank_2:
     sta PRG_BANK_2
+    jsr _calc_bank_addr
     sta PRG_BANK_2_REG
     rts
 
 ; param a: [0x54, 0x7E]
 _set_prg_bank_3:
     sta PRG_BANK_3
+    jsr _calc_bank_addr
     sta PRG_BANK_3_REG
     rts
 

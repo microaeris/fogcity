@@ -42,8 +42,8 @@ IRQ_SCANLINE_COMPARE_REG    = $5203
 IRQ_SCANLINE_STATUS_REG     = $5204
 
 ; 8 x 8 Multiply Registers
-MULT_16_A_REG   = $5205
-MULT_16_B_REG   = $5206
+MULT_16_LO_REG   = $5205
+MULT_16_HI_REG   = $5206
 
 
 ; Constants
