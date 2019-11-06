@@ -54,8 +54,11 @@ VRAM_BUF    =$0700
 .segment "CHR_00"
 .segment "CHR_01"
 .segment "BANK_00"
+    .byte $42, $41, $4e, $4b, $30, $30
 .segment "BANK_2A"
+    .byte $42, $41, $4e, $4b, $32, $41
 .segment "BANK_54"
+    .byte $42, $41, $4e, $4b, $35, $34
 
 
 .segment "ZEROPAGE"
@@ -289,7 +292,7 @@ sounds_data:
     .endif
 
 
-.segment "SAMPLES"
+;.segment "SAMPLES"
 ;   .incbin "music_dpcm.bin"
 
 

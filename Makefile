@@ -15,7 +15,7 @@ IFLAGS = $(patsubst %,-I%,$(subst :, ,$(IDIR)))
 CAFLAGS = $(IFLAGS)
 CCFLAGS = --add-source $(IFLAGS)
 LDFLAGS = -C $(CONFIG_FILE) -m $(OUT_DIR)/$*.map
-# -S start address is 0x8000 minus space for the header.
+# `-S` start address is 0x8000 minus space for the header.
 DAFLAGS = -o $(OUT_DIR)/$(GAME_TARGET).disas --comments 4 -S 0x7FF0
 # Select all `.c` files under the source directory
 SOURCES = $(wildcard $(SRC_DIR)/*.c)

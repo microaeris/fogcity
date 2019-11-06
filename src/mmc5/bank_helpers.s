@@ -34,7 +34,7 @@
 ; param a: [0x00, 0x29]
 _set_prg_bank_1:
     sta PRG_BANK_1
-    ldx __BANK_00_LOAD__  ; FIXME - how does this work? loading a 16 bit number into x?
+    ; ldx #>__BANK_00_LOAD__  ; FIXME - how does this work? loading a 16 bit number into x?
     sta PRG_BANK_1_REG
     rts
 

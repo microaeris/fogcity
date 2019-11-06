@@ -8,6 +8,10 @@ This project depends on cc65 and fceux.
 
 `sudo apt-get install cc65 fceux`
 
+Additionally, you will need to install the Windows version of FCEUX.
+
 * `make` to build the game.
 * `make run` to build and run the game in fceux.
 * `make clean` to delete all generated files.
+* `make debug` to start FCEUX and the debugger.
+* `make disas` to generated the disassembled ASM.
