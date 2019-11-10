@@ -265,9 +265,7 @@ _exit:
     stx DMC_FREQ
     stx PPU_CTRL        ;no NMI
 
-; ; MMC5 reset
-;     lda #PRG_MODE_3       ; FIXME - remove this set since mode 3 is default?
-;     jsr _set_prg_mode
+; MMC5 reset
 
     lda #CHR_MODE_1
     jsr _set_chr_mode
@@ -278,10 +276,10 @@ _exit:
     lda #$00
     jsr _set_prg_bank_1
 
-;     lda #$2A
+;     lda #$01
 ;     jsr _set_prg_bank_2
 
-;     lda #$54
+;     lda #$02
 ;     jsr _set_prg_bank_3
 
     lda #$00 ;CHR bank #0 for first tile set

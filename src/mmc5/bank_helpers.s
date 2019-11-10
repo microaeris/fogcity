@@ -1,6 +1,3 @@
-; Linker generated symbols
-    .import __BANK_00_LOAD__
-
 .segment "ZEROPAGE"
     ; PRG_BANK_0: .res 1  ; FIXME - remove since I won't use WRAM?
     PRG_BANK_1: .res 1
@@ -23,30 +20,28 @@ BANK_SIZE_HI = $20  ; High byte of $2000, the PRG bank size in Mode 3
 
 
 ; Calculate the 16-bit address of the bank
-; param a: bank index to load
-;          [0x00, 0x7E]
-; notes: ((bank_idx * size of each bank) + start addr)
-;        but I only care about the high byte of this operation.
-;    ldx #>__BANK_00_LOAD__
+;
+; Calculates (bank_idx * size of each bank). Then shifts the top three bits of
+; the lower byte into the higher byte. MMC5 only needs the top 7 bits of this
+; operation.
+;
+; Args:
+;     a: bank index to load. [0x00, 0x7E]
+;
+; Returns:
+;     None
 _calc_bank_addr:
     sta MULT_16_LO_REG
     ldx #BANK_SIZE_HI
     stx MULT_16_HI_REG
-    lda MULT_16_LO_REG
-    clc
-    adc #BANK_SIZE_HI                ; FIXME - this value is wrong. needs to be hex $8000
-    txa  ; x holds the low byte
-    lda MULT_16_HI_REG
-    adc #$0
     ; Loop 1
-    tay  ; y holds the high byte
-    txa
+    lda MULT_16_LO_REG
     asl A
-    tax
-    tya
+    tax  ; x holds low byte
+    lda MULT_16_HI_REG
     rol A
     ; Loop 2
-    tay
+    tay  ; y holds the high byte
     txa
     asl A
     tax
@@ -63,10 +58,16 @@ _calc_bank_addr:
 
 
 ; Setters for PRG bank switching
-; param a: bank index to load
 ;
 ; The setter will convert the index into the appropriate address
 ; bits to set in the bank switching register.
+; Note, there is no setter for bank 4 because it is fixed.
+;
+; Args:
+;     a: bank index to load
+;
+; Returns:
+;     None
 
 ; _set_prg_bank_0:
 ;     sta PRG_BANK_0
@@ -93,8 +94,6 @@ _set_prg_bank_3:
     jsr _calc_bank_addr
     sta PRG_BANK_3_REG
     rts
-
-; No setter for bank 4 because it is fixed
 
 
 ; FIXME - remove these getters if not used?

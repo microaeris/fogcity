@@ -12,9 +12,13 @@ FCEUX_WIN = ~/insync/linux/nesdev/nes-tools/fceuxw/fceux.exe
 IDIR = include:.
 # Create a list of strings from IDIR and prepend all items with `-I`
 IFLAGS = $(patsubst %,-I%,$(subst :, ,$(IDIR)))
-CAFLAGS = $(IFLAGS)
-CCFLAGS = --add-source $(IFLAGS)
-LDFLAGS = -C $(CONFIG_FILE) -m $(OUT_DIR)/$*.map
+# Debug info generation is always on. Since the generated debug info is not
+# appended to the generated executables, it is a good idea to always use -g.
+# It makes the object files and libraries slightly larger (~30%), but this is
+# usually not a problem. https://www.cc65.org/doc/debugging-3.html
+CAFLAGS = $(IFLAGS) -g
+CCFLAGS = --add-source $(IFLAGS) -g
+LDFLAGS = -C $(CONFIG_FILE) -m $(OUT_DIR)/$*.map --dbgfile $(OUT_DIR)/$*.debug
 # `-S` start address is 0x8000 minus space for the header.
 DAFLAGS = -o $(OUT_DIR)/$(GAME_TARGET).disas --comments 4 -S 0x7FF0
 # Select all `.c` files under the source directory
