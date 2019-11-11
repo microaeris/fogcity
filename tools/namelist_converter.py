@@ -4,20 +4,26 @@
 
 The name list is written out to separate files per bank.
 
+Assumptions:
+    * Fixed bank lives in last bank
+    * Fixed bank is named `PRG`
+    * Zeropage bank is named `ZP`
+    * Banked segments have bank id in name. Example: `BANK_00`
+    * Only RAM memory area as address 0 is `ZP`
+    * Must run this script from the root of fogcity project dir.
+
 Name list documentation:
-    http://www.fceux.com/web/help/fceux.html?Debugger.html
+    http://www.fceux.com/web/help/fceux.html?Debugger.html > '.nl files format'
+
 """
 
 import re
+import os
+import argparse
 
 
-# Customize me!
-ROM_NAME = 'fog_city'
-DEBUG_FILE_NAME = './build/fog_city.debug'
-LINKER_SCRIPT_FILE_NAME = './cfg/mmc5.cfg'
-
-# Constants
-NL_FILE_NAME = '%s.nes.%x.nl'
+# Shared Constants
+NL_FILE_NAME = '%s.nes.%s.nl'
 FIXED_BANK_INDEX = 0x7F
 # RAM isn't actually banked.
 RAM_BANK_INDEX = 0x80
@@ -74,17 +80,16 @@ def get_ram_memory_areas(linker_script_file):
         if line.startswith(COMMENT_STR):
             continue
 
-        # Groups consists of (Memory area name, memory area start address)
         match = mem_area_pattern.match(line)
         if match:
-            groups = match.groups()
-            start_addr = int(groups[1], HEX_BASE)
+            (mem_area_name, mem_area_start) = match.groups()
+            start_addr = int(mem_area_start, HEX_BASE)
             # Check if memory area's starting address is in RAM.
             # ZP's starting address is 0. Ignore all other memory areas with
             # starting address of 0.
             if ((start_addr <= CPU_RAM_ADDR_END) and
-               ((start_addr != 0) or (groups[0] == ZP_SEGMENT_NAME))):
-                ram_memory_areas.append(groups[0])
+               ((start_addr != 0) or (mem_area_name == ZP_SEGMENT_NAME))):
+                ram_memory_areas.append(mem_area_name)
 
     return ram_memory_areas
 
@@ -154,25 +159,92 @@ def map_seg_id_to_bank_id(debug_file, fixed_bank_segments, ram_segments):
     return seg_id_to_bank_id
 
 
-def generate_symbol_list(debug_file, seg_to_bank_id):
+def generate_name_list(debug_file, seg_id_to_bank_id):
+    """Parse through the ld65 debug file for symbols.
+
+    Only matches the symbols in cartridge RAM and ROM.
+    Creates list of symbols per bank. List conforms to FCEUX's debug file
+    format. See link for documentation.
+
+        http://www.fceux.com/web/help/fceux.html?Debugger.html
+
+    Args:
+        debug_file (file obj): Open file pointer to the ld65 debug info file.
+        seg_id_to_bank_id (map): map from str of seg ID to int of bank ID
+
+    Returns:
+        bank_id_to_name_list (dict): Dict of int bank id to str name list.
+
     """
-    """
-    pass
+    SYM_ID_NAME_REGEX = 'sym\tid=([\d]+),name="([\w]+)"'
+    SEG_ID_REGEX = 'val=0x([0-9A-F]+),seg=([\d]+)'
+    NL_FORMAT = '$%04X#%s#\n'
+
+    sym_pattern = re.compile(SYM_ID_NAME_REGEX)
+    seg_pattern = re.compile(SEG_ID_REGEX)
+    bank_id_to_name_list = {}
+    debug_file.seek(0)
+
+    for line in debug_file:
+        sym_match = sym_pattern.match(line)
+        seg_match = seg_pattern.search(line)
+
+        if sym_match and seg_match:
+            (sym_id, sym_name) = sym_match.groups()
+            (sym_addr, seg_id) = seg_match.groups()
+            bank_id = seg_id_to_bank_id[seg_id]
+            name_list = bank_id_to_name_list.get(bank_id, '')
+            name_list += NL_FORMAT % (int(sym_addr, HEX_BASE), sym_name)
+            bank_id_to_name_list[bank_id] = name_list
+
+    return bank_id_to_name_list
 
 
-def create_nl_files(bank_id_to_symbol_list):
+def print_name_lists(bank_id_to_name_list):
+    for bank_id in bank_id_to_name_list:
+        print bank_id
+        for line in bank_id_to_name_list[bank_id].split('\n'):
+            print '\t%s' % line
+
+
+def create_nl_files(args, bank_id_to_name_list):
+    """Creates name list files and populates with appropriate data.
+
+    If file already exists, file contents are overwritten.
+
+    Args:
+        args (argparser): Command line arguments
+        bank_id_to_name_list (dict): Dict of int bank id to str name list.
+
     """
-    """
-    pass
+    for bank_id in bank_id_to_name_list:
+        bank_str = 'ram' if (bank_id == RAM_BANK_INDEX) else ('%x' % bank_id)
+        file_path = os.path.join(args.nl_output_dir,
+                                 NL_FILE_NAME % (args.rom_name, bank_str))
+        file = open(file_path, 'w+')
+        file.write(bank_id_to_name_list[bank_id])
+        file.close()
 
 
 def main():
+    parser = argparse.ArgumentParser(description='Debug Name List Generator')
+    parser.add_argument('-n', action='store', dest='rom_name', type=str,
+                        required=True, help='Game name')
+    parser.add_argument('-d', action='store', dest='debug_file', type=str,
+                        required=True, help='ld65 debug file path')
+    parser.add_argument('-c', action='store', dest='linker_script_file',
+                        type=str, required=True, help='ld65 config file path')
+    parser.add_argument('-o', action='store', dest='nl_output_dir',
+                        type=str, required=True, help='Output dir to put name \
+                        list files in')
+    args = parser.parse_args()
+
     debug_file = None
     linker_script_file = None
 
     try:
-        debug_file = open(DEBUG_FILE_NAME, 'rt')
-        linker_script_file = open(LINKER_SCRIPT_FILE_NAME, "rt")
+        debug_file = open(args.debug_file, 'rt')
+        linker_script_file = open(args.linker_script_file, "rt")
     except IOError:
         print('Error on opening a file.')
         raise
@@ -184,11 +256,12 @@ def main():
     seg_id_to_bank_id = map_seg_id_to_bank_id(debug_file,
                                               fixed_bank_segments,
                                               ram_segments)
-    bank_id_to_symbol_list = generate_symbol_list(debug_file,
-                                                  seg_id_to_bank_id)
+    bank_id_to_name_list = generate_name_list(debug_file,
+                                              seg_id_to_bank_id)
     debug_file.close()
 
-    create_nl_files(bank_id_to_symbol_list)
+    # print_name_lists(bank_id_to_name_list)
+    create_nl_files(args, bank_id_to_name_list)
 
 
 if __name__ == '__main__':

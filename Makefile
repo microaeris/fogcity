@@ -21,12 +21,14 @@ CCFLAGS = --add-source $(IFLAGS) -g
 LDFLAGS = -C $(CONFIG_FILE) -m $(OUT_DIR)/$*.map --dbgfile $(OUT_DIR)/$*.debug
 # `-S` start address is 0x8000 minus space for the header.
 DAFLAGS = -o $(OUT_DIR)/$(GAME_TARGET).disas --comments 4 -S 0x7FF0
+NLFLAGS = -n $(GAME_TARGET) -d $(OUT_DIR)/$*.debug -c $(CONFIG_FILE) -o $(OUT_DIR)
 # Select all `.c` files under the source directory
 SOURCES = $(wildcard $(SRC_DIR)/*.c)
 HEADERS = $(wildcard include/*.h)
 GAME_PATH = $(OUT_DIR)/$(GAME_TARGET).nes
 # Convert list of all `.c` source files to `.o` files in output dir.
 SRCS_TO_OBJS = $(SOURCES:$(SRC_DIR)%.c=$(OUT_DIR)%.o)
+NL_CONVERTER = ./tools/namelist_converter.py
 
 
 #### Print debugging ####
@@ -64,7 +66,7 @@ run: $(GAME_PATH)
 	@fceux --pal 1 $<
 
 debug: $(GAME_PATH)
-	@wine $(FCEUX_WIN) $<
+	wine $(FCEUX_WIN) $<
 
 disas: $(GAME_PATH)
 	da65 $(DAFLAGS) $<
@@ -81,3 +83,5 @@ $(OUT_DIR)/%.nes: $(SRCS_TO_OBJS) $(OUT_DIR)/crt0.o | $(CONFIG_FILE)
 # -m: Generate map file
 # -C: Config file. aka ld65's linker script.
 	ld65 $(LDFLAGS) -o $@ $^ nes.lib
+# Generate debug symbol file for FCEUX
+	python ./tools/namelist_converter.py $(NLFLAGS)
