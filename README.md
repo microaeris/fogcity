@@ -14,4 +14,4 @@ Additionally, you will need to install the Windows version of FCEUX.
 * `make run` to build and run the game in fceux.
 * `make clean` to delete all generated files.
 * `make debug` to start FCEUX and the debugger.
-* `make disas` to generated the disassembled ASM.
+* `make disas` to generated the disassembled ASM. Only dumps first 64KB.

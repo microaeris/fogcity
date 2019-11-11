@@ -15,6 +15,10 @@ Assumptions:
 Name list documentation:
     http://www.fceux.com/web/help/fceux.html?Debugger.html > '.nl files format'
 
+Example:
+    python ./tools/namelist_converter.py -n fog_city -d build/fog_city.debug
+        -c cfg/mmc5.cfg -o build`
+
 """
 
 import re
@@ -24,9 +28,9 @@ import argparse
 
 # Shared Constants
 NL_FILE_NAME = '%s.nes.%s.nl'
-FIXED_BANK_INDEX = 0x7F
-# RAM isn't actually banked.
-RAM_BANK_INDEX = 0x80
+FIXED_BANK_INDEX = 0x3F
+# RAM isn't actually banked, but needs its own name list file.
+RAM_BANK_INDEX = 0x40
 COMMENT_STR = '#'
 HEX_BASE = 16
 
@@ -128,6 +132,14 @@ def get_ram_segments(linker_script_file):
 def map_seg_id_to_bank_id(debug_file, fixed_bank_segments, ram_segments):
     """Generate map of segment ID to bank ID.
 
+    FCEUX assumes bank sizes are $4000, while mine are $2000. This means
+    I will have to divide my bank id's by 2.
+
+    From FCEUX's documentation:
+        bb - 16k iNES bank, designates which 16k bank from the iNES file is
+        mapped here. Note that the number may be not the same as the actual
+        hardware bank of the mapper.
+
     Args:
         debug_file (file obj): Open file pointer to the ld65 debug info file.
         fixed_bank_segments (list): List of strings of segment names.
@@ -153,7 +165,7 @@ def map_seg_id_to_bank_id(debug_file, fixed_bank_segments, ram_segments):
                 continue
             elif 'BANK_' in seg_name:
                 seg_name = seg_name.split('_')
-                seg_id_to_bank_id[seg_id] = int(seg_name[1], HEX_BASE)
+                seg_id_to_bank_id[seg_id] = int(seg_name[1], HEX_BASE) / 2
                 continue
 
     return seg_id_to_bank_id
