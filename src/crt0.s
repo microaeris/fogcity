@@ -276,17 +276,22 @@ _exit:
     lda #$00
     jsr _set_prg_bank_1
 
-;     lda #$01
-;     jsr _set_prg_bank_2
+    lda #$01
+    jsr _set_prg_bank_2
 
-;     lda #$02
-;     jsr _set_prg_bank_3
+    lda #$02
+    jsr _set_prg_bank_3
 
-    lda #$00 ;CHR bank #0 for first tile set
+    lda #$00  ; Index of tile set
     jsr _set_chr_bank_0
 
-    lda #$01 ;CHR bank #1 for second tile set
+    lda #$01
     jsr _set_chr_bank_1
+
+    ; Clear unused upper CHR bank selector
+    ; FIXME - can use this reg to use extended attribute table mode.
+    lda #$0
+    sta CHR_UPPER_BANK_BITS_REG
 
 initPPU:
     bit PPU_STATUS

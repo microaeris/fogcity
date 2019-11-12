@@ -54,6 +54,8 @@ _calc_bank_addr:
     tax
     tya
     rol A
+    ; Select ROM
+    ORA #PRG_ROM_SELECT
     rts
 
 
