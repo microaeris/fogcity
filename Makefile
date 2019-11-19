@@ -22,12 +22,11 @@ LDFLAGS = -C $(CONFIG_FILE) -m $(OUT_DIR)/$*.map --dbgfile $(OUT_DIR)/$*.debug
 # `-S` start address is 0x8000 minus space for the header.
 DAFLAGS = -o $(OUT_DIR)/$(GAME_TARGET).disas --comments 4 -S 0x7FF0
 NLFLAGS = -n $(GAME_TARGET) -d $(OUT_DIR)/$*.debug -c $(CONFIG_FILE) -o $(OUT_DIR)
-# Select all `.c` files under the source directory
-SOURCES = $(wildcard $(SRC_DIR)/*.c)
+# Select all `.c` files under the source directory recursively
+SOURCES = $(wildcard $(SRC_DIR)/**/*.c) $(wildcard $(SRC_DIR)/*.c)
 HEADERS = $(wildcard include/*.h)
+OBJECTS = $(SOURCES:$(SRC_DIR)%.c=$(OUT_DIR)%.o)
 GAME_PATH = $(OUT_DIR)/$(GAME_TARGET).nes
-# Convert list of all `.c` source files to `.o` files in output dir.
-SRCS_TO_OBJS = $(SOURCES:$(SRC_DIR)%.c=$(OUT_DIR)%.o)
 NL_CONVERTER = ./tools/namelist_converter.py
 
 
@@ -39,8 +38,9 @@ NL_CONVERTER = ./tools/namelist_converter.py
 # $(info The @ is "$@")
 # $(info The < is "$<")
 # $(info The ^ is "$^")
-# $(info Headers is "$(HEADERS)")
-# $(info Sources is "$(SOURCES)")
+$(info Headers is "$(HEADERS)")
+$(info Sources is "$(SOURCES)")
+$(info Object files is "$(OBJECTS)")
 
 
 #### Special Built-in Targets ####
@@ -57,10 +57,8 @@ NL_CONVERTER = ./tools/namelist_converter.py
 all: $(GAME_PATH)
 
 clean:
-# Delete all files under ./build.
-# `-f` = force
-# `-v` = verbose
-	@rm -fv $(OUT_DIR)/*
+# Delete all files under ./build but preserve directory structure
+	find $(OUT_DIR)/ ! -type d -exec rm '{}' \;
 
 run: $(GAME_PATH)
 	@fceux --pal 1 $<
@@ -71,15 +69,19 @@ debug: $(GAME_PATH)
 disas: $(GAME_PATH)
 	da65 $(DAFLAGS) $<
 
+# TODO: Add unit tests
+# test:
+# 	sim65
+
 $(OUT_DIR)/crt0.o: $(SRC_DIR)/crt0.s
 	ca65 $< -o $@ $(CAFLAGS)
 
 # FIXME - We're rebuilding every source file any time any source file changes.
 $(OUT_DIR)/%.o: $(SOURCES) $(HEADERS)
 	cc65 -Oi $(SRC_DIR)/$*.c -o $(OUT_DIR)/$*.s $(CCFLAGS)
-	ca65 $(OUT_DIR)/$*.s -o $@ $(CAFLAGS)
+	ca65 $(OUT_DIR)/$*.s -o $(OUT_DIR)/$*.o $(CAFLAGS)
 
-$(OUT_DIR)/%.nes: $(SRCS_TO_OBJS) $(OUT_DIR)/crt0.o | $(CONFIG_FILE)
+$(OUT_DIR)/%.nes: $(OBJECTS) $(OUT_DIR)/crt0.o | $(CONFIG_FILE)
 # -m: Generate map file
 # -C: Config file. aka ld65's linker script.
 	ld65 $(LDFLAGS) -o $@ $^ nes.lib

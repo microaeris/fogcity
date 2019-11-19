@@ -263,9 +263,9 @@ _exit:
     inx
     stx PPU_MASK
     stx DMC_FREQ
-    stx PPU_CTRL        ;no NMI
+    stx PPU_CTRL  ; no NMI
 
-; MMC5 reset
+    ; MMC5 reset
 
     lda #CHR_MODE_1
     jsr _set_chr_mode
@@ -351,14 +351,14 @@ clearRAM:
     lda #<(__STACK_START__+__STACKSIZE__) ;changed
     sta sp
     lda #>(__STACK_START__+__STACKSIZE__)
-    sta sp+1            ; Set argument stack ptr
+    sta sp+1  ; Set argument stack ptr
 
 ;   jsr initlib
 ; removed. this called the CONDES function
 
     lda #%10000000
     sta <PPU_CTRL_VAR
-    sta PPU_CTRL        ;enable NMI
+    sta PPU_CTRL  ; Enable NMI
     lda #%00000110
     sta <PPU_MASK_VAR
 

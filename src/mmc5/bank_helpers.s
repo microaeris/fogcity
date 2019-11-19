@@ -1,11 +1,12 @@
 .segment "ZEROPAGE"
-    ; PRG_BANK_0: .res 1  ; FIXME - remove since I won't use WRAM?
-    PRG_BANK_1: .res 1
-    PRG_BANK_2: .res 1
-    PRG_BANK_3: .res 1
-    nmiChrTileBank: .res 1
-    .exportzp PRG_BANK_1, PRG_BANK_2, PRG_BANK_3
-    .exportzp nmiChrTileBank
+
+; PRG_BANK_0: .res 1  ; FIXME - remove since I won't use WRAM?
+PRG_BANK_1: .res 1
+PRG_BANK_2: .res 1
+PRG_BANK_3: .res 1
+nmiChrTileBank: .res 1
+.exportzp PRG_BANK_1, PRG_BANK_2, PRG_BANK_3
+.exportzp nmiChrTileBank
 
 .segment "CODE"
 
@@ -14,7 +15,7 @@
 .export _set_chr_bank_0, _set_chr_bank_1, _set_chr_bg_tile_bank
 .export _set_prg_mode, _set_chr_mode, _set_mirroring
 ; FIXME - figure out what to do with these two functions
-.export _set_nmi_chr_tile_bank, _unset_nmi_chr_tile_bank
+;.export _set_nmi_chr_tile_bank, _unset_nmi_chr_tile_bank
 
 BANK_SIZE_HI = $20  ; High byte of $2000, the PRG bank size in Mode 3
 
@@ -24,6 +25,13 @@ BANK_SIZE_HI = $20  ; High byte of $2000, the PRG bank size in Mode 3
 ; Calculates (bank_idx * size of each bank). Then shifts the top three bits of
 ; the lower byte into the higher byte. MMC5 only needs the top 7 bits of this
 ; operation.
+;
+; This function always selects ROM as the memory type. This should be changed
+; if my game ever uses extended RAM.
+;
+; To Do:
+;     Use a jump table instead of calculating the address values dynamically.
+;     if performance is an issue.
 ;
 ; Args:
 ;     a: bank index to load. [0x00, 0x7E]

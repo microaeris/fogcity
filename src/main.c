@@ -1,6 +1,7 @@
 #include "lib/neslib.h"
 #include "lib/nesdoug.h"
 #include "nes_st/bg_test.h"
+#include "include/bank_helpers.h"
 
 const unsigned char palette[]={
     0x0f, 0x17, 0x27, 0x36,
@@ -23,6 +24,8 @@ void main (void) {
     // // created by NES Screen Tool
 
     // ppu_on_all(); // turn on screen
+
+    banked_call(1, NULL);
 
     while (1){
         // infinite loop
