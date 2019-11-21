@@ -1,20 +1,27 @@
-#include <bank_helpers.h>
+// NOTE: These functions must be located in the fixed bank.
+#pragma rodata-name ("CODE")
+#pragma code-name ("CODE")
 
-extern int PRG_BANK_1;
+
+// Maximum level of recursion to allow with banked_call and similar functions.
+#define MAX_BANK_DEPTH 16
+
+unsigned char bankLevel;
+unsigned char bankBuffer[MAX_BANK_DEPTH];
+
+// Importing zero page variables
+extern unsigned char PRG_BANK_1;
 #pragma zpsym ("PRG_BANK_1");
 
-// NOTE: These functions must be located in the fixed bank.
 
-
-void banked_call(unsigned char bankId, void (*method)(void)) {
+void banked_call(unsigned char bankId, void (*method)(void))
+{
     if (bankId == PRG_BANK_1) {
         return;
     }
     (void)method;
 //     bank_push(bankId);
-
 //     (*method)();
-
 //     bank_pop();
 }
 

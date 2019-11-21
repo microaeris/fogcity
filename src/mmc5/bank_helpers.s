@@ -1,12 +1,13 @@
 .segment "ZEROPAGE"
 
 ; PRG_BANK_0: .res 1  ; FIXME - remove since I won't use WRAM?
-PRG_BANK_1: .res 1
-PRG_BANK_2: .res 1
-PRG_BANK_3: .res 1
-nmiChrTileBank: .res 1
-.exportzp PRG_BANK_1, PRG_BANK_2, PRG_BANK_3
-.exportzp nmiChrTileBank
+_PRG_BANK_1: .res 1
+_PRG_BANK_2: .res 1
+_PRG_BANK_3: .res 1
+_nmiChrTileBank: .res 1
+.exportzp _PRG_BANK_1, _PRG_BANK_2, _PRG_BANK_3
+.exportzp _nmiChrTileBank
+
 
 .segment "CODE"
 
@@ -16,6 +17,7 @@ nmiChrTileBank: .res 1
 .export _set_prg_mode, _set_chr_mode, _set_mirroring
 ; FIXME - figure out what to do with these two functions
 ;.export _set_nmi_chr_tile_bank, _unset_nmi_chr_tile_bank
+
 
 BANK_SIZE_HI = $20  ; High byte of $2000, the PRG bank size in Mode 3
 
@@ -86,21 +88,21 @@ _calc_bank_addr:
 
 ; param a: [0x00, 0x29]
 _set_prg_bank_1:
-    sta PRG_BANK_1
+    sta _PRG_BANK_1
     jsr _calc_bank_addr
     sta PRG_BANK_1_REG
     rts
 
 ; param a: [0x2A, 0x53]
 _set_prg_bank_2:
-    sta PRG_BANK_2
+    sta _PRG_BANK_2
     jsr _calc_bank_addr
     sta PRG_BANK_2_REG
     rts
 
 ; param a: [0x54, 0x7E]
 _set_prg_bank_3:
-    sta PRG_BANK_3
+    sta _PRG_BANK_3
     jsr _calc_bank_addr
     sta PRG_BANK_3_REG
     rts
@@ -115,15 +117,15 @@ _set_prg_bank_3:
 ;     rts
 
 _get_prg_bank_1:
-    lda PRG_BANK_1
+    lda _PRG_BANK_1
     rts
 
 _get_prg_bank_2:
-    lda PRG_BANK_2
+    lda _PRG_BANK_2
     rts
 
 _get_prg_bank_3:
-    lda PRG_BANK_3
+    lda _PRG_BANK_3
     rts
 
 
@@ -159,11 +161,11 @@ _set_mirroring:
 ; FIXME - figure out what I want to do in these two functions for MMC5
 ; for split screens with different CHR bank at top
 _set_nmi_chr_tile_bank:
-    sta nmiChrTileBank
+    sta _nmiChrTileBank
     rts
 
 ; for split screens with different CHR bank at top... disable it
 _unset_nmi_chr_tile_bank:
-    lda #PRG_BANK_1
-    sta nmiChrTileBank
+    lda #_PRG_BANK_1
+    sta _nmiChrTileBank
     rts

@@ -38,9 +38,9 @@ NL_CONVERTER = ./tools/namelist_converter.py
 # $(info The @ is "$@")
 # $(info The < is "$<")
 # $(info The ^ is "$^")
-$(info Headers is "$(HEADERS)")
-$(info Sources is "$(SOURCES)")
-$(info Object files is "$(OBJECTS)")
+# $(info Headers is "$(HEADERS)")
+# $(info Sources is "$(SOURCES)")
+# $(info Object files is "$(OBJECTS)")
 
 
 #### Special Built-in Targets ####
@@ -57,8 +57,9 @@ $(info Object files is "$(OBJECTS)")
 all: $(GAME_PATH)
 
 clean:
-# Delete all files under ./build but preserve directory structure
-	find $(OUT_DIR)/ ! -type d -exec rm '{}' \;
+# Delete all files under ./build.
+# `-f` = force, `-v` = verbose, `-r` = recursive
+	@rm -rfv $(OUT_DIR)/*
 
 run: $(GAME_PATH)
 	@fceux --pal 1 $<
@@ -78,6 +79,10 @@ $(OUT_DIR)/crt0.o: $(SRC_DIR)/crt0.s
 
 # FIXME - We're rebuilding every source file any time any source file changes.
 $(OUT_DIR)/%.o: $(SOURCES) $(HEADERS)
+# Ugly hacks. This dir needs to exist for cc65 to be able to output files to it.
+# Git ignore currently ignores everything under build, so I don't commit this directory
+# So instead, let's make this directory when we need it.
+	@mkdir $(OUT_DIR)/mmc5 -p
 	cc65 -Oi $(SRC_DIR)/$*.c -o $(OUT_DIR)/$*.s $(CCFLAGS)
 	ca65 $(OUT_DIR)/$*.s -o $(OUT_DIR)/$*.o $(CAFLAGS)
 
