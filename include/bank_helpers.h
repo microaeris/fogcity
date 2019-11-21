@@ -3,13 +3,6 @@
 #ifndef BANK_HELPERS_H
 #define BANK_HELPERS_H
 
-// Maximum level of recursion to allow with banked_call and similar functions.
-#define MAX_BANK_DEPTH 16
-
-unsigned char bankLevel;
-unsigned char bankBuffer[MAX_BANK_DEPTH];
-
-
 // Switch to another bank and call this function.
 // Note: Using banked_call to call a second function from within
 // another banked_call is safe. This will break if you nest more
