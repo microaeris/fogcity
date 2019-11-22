@@ -5,9 +5,7 @@ OUT_DIR = build
 SRC_DIR = src
 LIB_DIR = lib
 CONFIG_FILE = cfg/mmc5.cfg
-# Change this path to point to your Windows version of FCEUX.
-# The Linux version of FCEUX is lacks all debugging features.
-FCEUX_WIN = ~/insync/linux/nesdev/nes-tools/fceuxw/fceux.exe
+MESEN = ~/insync/linux/nesdev/nes-tools/Mesen.exe
 # Include directories separated by colons
 IDIR = include:.
 # Create a list of strings from IDIR and prepend all items with `-I`
@@ -18,16 +16,14 @@ IFLAGS = $(patsubst %,-I%,$(subst :, ,$(IDIR)))
 # usually not a problem. https://www.cc65.org/doc/debugging-3.html
 CAFLAGS = $(IFLAGS) -g
 CCFLAGS = --add-source $(IFLAGS) -g
-LDFLAGS = -C $(CONFIG_FILE) -m $(OUT_DIR)/$*.map --dbgfile $(OUT_DIR)/$*.debug
+LDFLAGS = -C $(CONFIG_FILE) -m $(OUT_DIR)/$*.map --dbgfile $(OUT_DIR)/$*.dbg
 # `-S` start address is 0x8000 minus space for the header.
 DAFLAGS = -o $(OUT_DIR)/$(GAME_TARGET).disas --comments 4 -S 0x7FF0
-NLFLAGS = -n $(GAME_TARGET) -d $(OUT_DIR)/$*.debug -c $(CONFIG_FILE) -o $(OUT_DIR)
 # Select all `.c` files under the source directory recursively
 SOURCES = $(wildcard $(SRC_DIR)/**/*.c) $(wildcard $(SRC_DIR)/*.c)
 HEADERS = $(wildcard include/*.h)
 OBJECTS = $(SOURCES:$(SRC_DIR)%.c=$(OUT_DIR)%.o)
 GAME_PATH = $(OUT_DIR)/$(GAME_TARGET).nes
-NL_CONVERTER = ./tools/namelist_converter.py
 
 
 #### Print debugging ####
@@ -62,10 +58,7 @@ clean:
 	@rm -rfv $(OUT_DIR)/*
 
 run: $(GAME_PATH)
-	@fceux --pal 1 $<
-
-debug: $(GAME_PATH)
-	wine $(FCEUX_WIN) $<
+	mono $(MESEN) $< --region PAL
 
 disas: $(GAME_PATH)
 	da65 $(DAFLAGS) $<
@@ -90,5 +83,3 @@ $(OUT_DIR)/%.nes: $(OBJECTS) $(OUT_DIR)/crt0.o | $(CONFIG_FILE)
 # -m: Generate map file
 # -C: Config file. aka ld65's linker script.
 	ld65 $(LDFLAGS) -o $@ $^ nes.lib
-# Generate debug symbol file for FCEUX
-	python ./tools/namelist_converter.py $(NLFLAGS)

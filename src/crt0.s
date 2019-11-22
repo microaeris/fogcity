@@ -246,7 +246,7 @@ DATA_PTR:           .res 2
     .byte <NES_CHR_BANKS
     .byte <NES_MIRRORING|(<NES_MAPPER<<4)  ; Flag 6
     .byte <NES_MAPPER&$F0  ; iNES format
-    .res 3,0
+    .res 3, $00
     .byte $41,$45,$52,$49,$53 ; AERIS
 
 
@@ -279,8 +279,8 @@ _exit:
     lda #$01
     jsr _set_prg_bank_2
 
-    lda #$02
-    jsr _set_prg_bank_3
+    ; lda #$02
+    ; jsr _set_prg_bank_3
 
     lda #$00  ; Index of tile set
     jsr _set_chr_bank_0
