@@ -25,7 +25,7 @@ void main (void) {
 
     // ppu_on_all(); // turn on screen
 
-    banked_call(1, NULL);
+    // banked_call(1, NULL);
 
     while (1){
         // infinite loop
