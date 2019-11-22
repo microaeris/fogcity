@@ -279,8 +279,8 @@ _exit:
     lda #$01
     jsr _set_prg_bank_2
 
-    ; lda #$02
-    ; jsr _set_prg_bank_3
+    lda #$02
+    jsr _set_prg_bank_3
 
     lda #$00  ; Index of tile set
     jsr _set_chr_bank_0
