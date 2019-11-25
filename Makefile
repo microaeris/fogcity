@@ -33,6 +33,9 @@ TEST_OBJECTS = $(TEST_SOURCES:%.c=$(OUT_DIR)/%.o)
 TEST_BINARY = $(OUT_DIR)/$(TEST_DIR)/test_$(GAME_TARGET)
 TEST_CCFLAGS = $(CCFLAGS) --target sim6502
 TEST_LDFLAGS = --target sim6502
+# Assert is mocked out in our tests. Test has its own main.
+SOURCES_TO_TEST = $(filter-out $(SRC_DIR)/assert.c $(SRC_DIR)/main.c, $(SOURCES))
+OBJECTS_TO_TEST = $(filter-out $(OUT_DIR)/assert.o $(OUT_DIR)/main.o, $(OBJECTS))
 
 #### Print debugging ####
 
@@ -44,7 +47,10 @@ TEST_LDFLAGS = --target sim6502
 # $(info The ^ is "$^")
 # $(info Headers is "$(HEADERS)")
 # $(info Sources is "$(SOURCES)")
+# $(info ASM Sources is "$(ASM_SOURCES)")
 # $(info Object files is "$(OBJECTS)")
+# $(info SOURCES_TO_TEST is "$(SOURCES_TO_TEST)")
+# $(info OBJECTS_TO_TEST is "$(OBJECTS_TO_TEST)")
 
 
 #### Special Built-in Targets ####
@@ -96,10 +102,10 @@ $(OUT_DIR)/%.nes: $(OBJECTS) $(OUT_DIR)/crt0.o | $(CONFIG_FILE)
 
 # All test artifacts can be found under `build/tests`
 # FIXME - why are all of my makefile rules so ugly?
-$(OUT_DIR)/$(TEST_DIR)/%.o: $(TEST_SOURCES)
+$(OUT_DIR)/$(TEST_DIR)/%.o: $(TEST_SOURCES) $(SOURCES_TO_TEST)
 	@mkdir $(OUT_DIR)/$(TEST_DIR) -p
 	cc65 $(TEST_DIR)/$*.c -o $(OUT_DIR)/$(TEST_DIR)/$*.s $(TEST_CCFLAGS)
 	ca65 $(OUT_DIR)/$(TEST_DIR)/$*.s -o $(OUT_DIR)/$(TEST_DIR)/$*.o $(CAFLAGS)
 
-$(TEST_BINARY): $(TEST_OBJECTS)
+$(TEST_BINARY): $(TEST_OBJECTS) $(OBJECTS_TO_TEST)
 	ld65 $(TEST_LDFLAGS) -o $@ $^ sim6502.lib
