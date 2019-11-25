@@ -21,6 +21,7 @@ LDFLAGS = -C $(CONFIG_FILE) -m $(OUT_DIR)/$*.map --dbgfile $(OUT_DIR)/$*.dbg
 DAFLAGS = -o $(OUT_DIR)/$(GAME_TARGET).disas --comments 4 -S 0x7FF0
 # Select all `.c` files under the source directory recursively
 SOURCES = $(wildcard $(SRC_DIR)/**/*.c) $(wildcard $(SRC_DIR)/*.c)
+ASM_SOURCES = $(wildcard $(SRC_DIR)/**/*.s) $(wildcard $(SRC_DIR)/*.s)
 HEADERS = $(wildcard include/*.h)
 OBJECTS = $(SOURCES:$(SRC_DIR)%.c=$(OUT_DIR)%.o)
 GAME_PATH = $(OUT_DIR)/$(GAME_TARGET).nes
@@ -69,6 +70,9 @@ disas: $(GAME_PATH)
 
 $(OUT_DIR)/crt0.o: $(SRC_DIR)/crt0.s
 	ca65 $< -o $@ $(CAFLAGS)
+
+# TODO
+# project not being rebuilt when changing ASM files.
 
 # FIXME - We're rebuilding every source file any time any source file changes.
 $(OUT_DIR)/%.o: $(SOURCES) $(HEADERS)

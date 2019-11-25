@@ -86,22 +86,40 @@ _calc_bank_addr:
 ;     sta PRG_BANK_0_REG
 ;     rts
 
-; param a: [0x00, 0x29]
+; Input sanitation
+;
+; if accumulator <= $7E, valid.
+; else assert
+;
+; param a: [0x00, 0x7E]
+.macro check_bankid
+    CLC
+    CMP #MAX_PRG_BANK_ID
+    BCC @1
+    BEQ @1
+    jsr abort
+@1:
+.endmacro
+
+; param a: [0x00, 0x7E]
 _set_prg_bank_1:
+    check_bankid
     sta _PRG_BANK_1
     jsr _calc_bank_addr
     sta PRG_BANK_1_REG
     rts
 
-; param a: [0x2A, 0x53]
+; param a: [0x00, 0x7E]
 _set_prg_bank_2:
+    check_bankid
     sta _PRG_BANK_2
     jsr _calc_bank_addr
     sta PRG_BANK_2_REG
     rts
 
-; param a: [0x54, 0x7E]
+; param a: [0x00, 0x7E]
 _set_prg_bank_3:
+    check_bankid
     sta _PRG_BANK_3
     jsr _calc_bank_addr
     sta PRG_BANK_3_REG

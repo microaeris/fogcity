@@ -48,6 +48,8 @@ MULT_16_HI_REG   = $5206
 
 ; Constants
 
+MAX_PRG_BANK_ID = $7E
+
 ;PRG Bankswitching Memory Types
 PRG_RAM_SELECT  = $00
 PRG_ROM_SELECT  = $80

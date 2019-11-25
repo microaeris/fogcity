@@ -3,20 +3,13 @@
 #ifndef BANK_HELPERS_H
 #define BANK_HELPERS_H
 
+#include <macros.h>
+
 // Switch to another bank and call this function.
 // Note: Using banked_call to call a second function from within
 // another banked_call is safe. This will break if you nest more
 // than 16 calls deep.
 void banked_call(unsigned char bankId, void (*method)(void));
-
-// Internal function used by banked_call(), don't call this directly.
-// Switch to the given bank, and keep track of the current bank, so that we
-// may jump back to it as needed.
-void bank_push(unsigned char bankId);
-
-// Internal function used by banked_call(), don't call this directly.
-// Go back to the last bank pushed on using bank_push.
-void bank_pop(void);
 
 // Switch to the given bank. Your prior bank is not saved.
 // Can be used for reading data with a function in the fixed bank.

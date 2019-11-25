@@ -14,19 +14,19 @@ FT_SFX_ENABLE   = 1     ;undefine to exclude all sound effects code
 ;REMOVED initlib
 ;this called the CONDES function
 
-    .export _exit,__STARTUP__:absolute=1
-    .import push0,popa,popax,_main,zerobss,copydata
+.export _exit,__STARTUP__:absolute=1
+.import push0,popa,popax,_main,zerobss,copydata
 
 ; Linker generated symbols
-    .import __STACK_START__ ,__STACKSIZE__
-    .import __ROM0_START__  ,__ROM0_SIZE__
-    .import __STARTUP_LOAD__,__STARTUP_RUN__,__STARTUP_SIZE__
-    .import __CODE_LOAD__   ,__CODE_RUN__   ,__CODE_SIZE__
-    .import __RODATA_LOAD__ ,__RODATA_RUN__ ,__RODATA_SIZE__
-    .import NES_MAPPER, NES_PRG_BANKS, NES_CHR_BANKS, NES_MIRRORING
+.import __STACK_START__ ,__STACKSIZE__
+.import __ROM0_START__  ,__ROM0_SIZE__
+.import __STARTUP_LOAD__,__STARTUP_RUN__,__STARTUP_SIZE__
+.import __CODE_LOAD__   ,__CODE_RUN__   ,__CODE_SIZE__
+.import __RODATA_LOAD__ ,__RODATA_RUN__ ,__RODATA_SIZE__
+.import NES_MAPPER, NES_PRG_BANKS, NES_CHR_BANKS, NES_MIRRORING
 
-    .importzp _PAD_STATE, _PAD_STATET
-    .include "zeropage.inc"
+.importzp _PAD_STATE, _PAD_STATET
+.include "zeropage.inc"
 
 PPU_CTRL    =$2000
 PPU_MASK    =$2001
@@ -414,6 +414,10 @@ detectNTSC:
     .include "lib/neslib.s"
     .include "lib/nesdoug.s"
     .include "music/famitone2.s"
+
+abort:
+    ; FIXME - does this work? Does `*` evaluate to the current address?
+    jmp *
 
 
 .segment "RODATA"
