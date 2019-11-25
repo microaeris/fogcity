@@ -11,6 +11,11 @@ void debug_assert(uint16_t expr)
     debug_asserted = !expr;
 }
 
+void clear_debug_assert(void)
+{
+    debug_asserted = FALSE;
+}
+
 void test_assert(uint16_t expression)
 {
     if (!expression) {

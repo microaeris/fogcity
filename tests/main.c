@@ -38,14 +38,14 @@ int main (void)
     for (i = 0; i < num_test_modules; ++i) {
         // Init test module
         test_assert((uint16_t)test_module_api_list[i].init);
-        printf("Init Module %d:\t\t", i);
         result = test_module_api_list[i].init();
+        printf("Init Module %d:\t\t", i);
         print_result(result);
 
         // Run test module
         test_assert((uint16_t)test_module_api_list[i].run);
-        printf("Testing Module %d:\t", i);
         result = test_module_api_list[i].run();
+        printf("Testing Module %d:\t", i);
         print_result(result);
     }
     printf("Done.\n\n");

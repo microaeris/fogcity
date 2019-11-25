@@ -13,7 +13,7 @@ test_result_t test_bank_helpers_init(void)
 test_result_t test_bank_helpers_run(void)
 {
     // banked_call(1, (void *)0);
-    debug_asserted = FALSE;
+    clear_debug_assert();
     debug_assert(0);
     test_assert(debug_asserted);
     return 0;
