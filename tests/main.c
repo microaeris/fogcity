@@ -34,7 +34,7 @@ int main (void)
 
     install_test_api();
 
-    printf("\n\nStarting...\n");
+    printf("\nStarting...\n");
     for (i = 0; i < num_test_modules; ++i) {
         // Init test module
         test_assert((uint16_t)test_module_api_list[i].init);
