@@ -369,7 +369,7 @@ waitSync3:
     beq @1
 
 detectNTSC:
-    ldx #52             ;blargg's code
+    ldx #52
     ldy #24
 @1:
     dex
@@ -406,7 +406,7 @@ detectNTSC:
     sta PPU_SCROLL
     sta PPU_SCROLL
 
-    jmp _main           ;no parameters
+    jmp _main           ; no parameters
 
     .include "mmc5/mmc5_macros.s"
     .include "mmc5/mmc5_cfg.s"
@@ -415,8 +415,9 @@ detectNTSC:
     .include "lib/nesdoug.s"
     .include "music/famitone2.s"
 
+; FIXME - errr is this the best way to organize global lib functions?
 abort:
-    ; FIXME - does this work? Does `*` evaluate to the current address?
+    ; `*` - PC counter operator
     jmp *
 
 
