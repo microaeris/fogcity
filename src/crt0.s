@@ -54,17 +54,17 @@ VRAM_BUF    =$0700
 .segment "CHR_00"
 .segment "CHR_01"
 .segment "BANK_00"
-    .byte $42, $41, $4e, $4b, $30, $30
-    .byte $FF
-.import __BANK_00_LOAD__
-    .byte >__BANK_00_LOAD__, <__BANK_00_LOAD__
+    ; .byte $42, $41, $4e, $4b, $30, $30
+    ; .byte $FF
+; .import __BANK_00_LOAD__
+    ; .byte >__BANK_00_LOAD__, <__BANK_00_LOAD__
 .segment "BANK_01"
-    .byte $42, $41, $4e, $4b, $30, $31
+    ; .byte $42, $41, $4e, $4b, $30, $31
 .segment "BANK_02"
-    .byte $42, $41, $4e, $4b, $30, $32
-    .byte $FF
-.import __BANK_02_LOAD__
-    .byte >__BANK_02_LOAD__, <__BANK_02_LOAD__
+    ; .byte $42, $41, $4e, $4b, $30, $32
+    ; .byte $FF
+; .import __BANK_02_LOAD__
+    ; .byte >__BANK_02_LOAD__, <__BANK_02_LOAD__
 .segment "BANK_03"
 .segment "BANK_04"
 .segment "BANK_05"

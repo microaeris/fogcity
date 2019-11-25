@@ -17,3 +17,4 @@ Mesen depends on:
 * `make run` to build and run the game in Mesen.
 * `make clean` to delete all generated files.
 * `make disas` to generated the disassembled ASM. Only dumps first 64KB.
+* `make test` to run unit tests against the 6502 simulator.

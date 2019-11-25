@@ -3,6 +3,21 @@
 #include "nes_st/bg_test.h"
 #include "include/bank_helpers.h"
 
+#pragma rodata-name ("BANK_00")
+#pragma code-name ("BANK_00")
+const unsigned char TEXT_00[]="BANK_00";
+
+void function_bank_00(void){
+    ppu_off();
+    vram_adr(NTADR_A(1,4));
+    vram_write(TEXT_00,sizeof(TEXT_00));
+    ppu_on_all();
+}
+
+#pragma rodata-name ("CODE")
+#pragma code-name ("CODE")
+const unsigned char text[]="FIXED BANK";
+
 const unsigned char palette[]={
     0x0f, 0x17, 0x27, 0x36,
     0x00, 0x00, 0x00, 0x00,
@@ -25,7 +40,7 @@ void main (void) {
 
     // ppu_on_all(); // turn on screen
 
-    banked_call(1, NULL);
+    banked_call(0x00, function_bank_00);
 
     while (1){
         // infinite loop

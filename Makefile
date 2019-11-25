@@ -32,7 +32,7 @@ TEST_SOURCES = $(wildcard $(TEST_DIR)/*.c) $(wildcard $(TEST_DIR)/**/*.c)
 TEST_OBJECTS = $(TEST_SOURCES:%.c=$(OUT_DIR)/%.o)
 TEST_BINARY = $(OUT_DIR)/$(TEST_DIR)/test_$(GAME_TARGET)
 TEST_CCFLAGS = $(CCFLAGS) --target sim6502
-TEST_LDFLAGS = --target sim6502 -D__EXEHDR__=1 -D__STARTUP__=0
+TEST_LDFLAGS = --target sim6502
 
 #### Print debugging ####
 
@@ -102,4 +102,4 @@ $(OUT_DIR)/$(TEST_DIR)/%.o: $(TEST_SOURCES)
 	ca65 $(OUT_DIR)/$(TEST_DIR)/$*.s -o $(OUT_DIR)/$(TEST_DIR)/$*.o $(CAFLAGS)
 
 $(TEST_BINARY): $(TEST_OBJECTS)
-	ld65 $(TEST_LDFLAGS) -o $@ $^
+	ld65 $(TEST_LDFLAGS) -o $@ $^ sim6502.lib

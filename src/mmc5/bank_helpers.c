@@ -7,7 +7,7 @@
 void banked_call(unsigned char bankId, void (*method)(void))
 {
     ASSERT((uint16_t)method);
-    ASSERT(bankLevel >= MAX_BANK_DEPTH);
+    ASSERT(bankLevel < MAX_BANK_DEPTH);
 
     if ((bankId != PRG_BANK_1) &&
         (bankId != PRG_BANK_2) &&
