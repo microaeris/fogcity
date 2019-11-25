@@ -37,6 +37,7 @@ TEST_LDFLAGS = --target sim6502
 SOURCES_TO_TEST = $(filter-out $(SRC_DIR)/assert.c $(SRC_DIR)/main.c, $(SOURCES))
 OBJECTS_TO_TEST = $(filter-out $(OUT_DIR)/assert.o $(OUT_DIR)/main.o, $(OBJECTS))
 
+
 #### Print debugging ####
 
 # $(info CAFLAGS="$(CAFLAGS)")

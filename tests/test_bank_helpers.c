@@ -3,7 +3,6 @@
 #include <test_assert.h>
 #include <bank_helpers.h>
 
-extern uint8_t debug_asserted;
 
 test_result_t test_bank_helpers_init(void)
 {
@@ -14,6 +13,6 @@ test_result_t test_bank_helpers_run(void)
 {
     clear_debug_assert();
     banked_call(1, (void *)0);
-    test_assert(debug_asserted);
+    test_debug_assert_called();
     return 0;
 }
