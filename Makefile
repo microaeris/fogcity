@@ -19,11 +19,12 @@ CCFLAGS = -Oi --add-source $(IFLAGS) -g
 LDFLAGS = -C $(CONFIG_FILE) -m $(OUT_DIR)/$*.map --dbgfile $(OUT_DIR)/$*.dbg
 # `-S` start address is 0x8000 minus space for the header.
 DAFLAGS = -o $(OUT_DIR)/$(GAME_TARGET).disas --comments 4 -S 0x7FF0
+HEADERS = $(wildcard include/*.h)
 # Select all `.c` files under the source directory recursively
 SOURCES = $(wildcard $(SRC_DIR)/**/*.c) $(wildcard $(SRC_DIR)/*.c)
-ASM_SOURCES = $(wildcard $(SRC_DIR)/*.s) $(wildcard $(SRC_DIR)/**/*.s)
-HEADERS = $(wildcard include/*.h)
 OBJECTS = $(SOURCES:$(SRC_DIR)%.c=$(OUT_DIR)%.o)
+ASM_SOURCES = $(wildcard $(SRC_DIR)/*.s) $(wildcard $(SRC_DIR)/**/*.s)
+ASM_OBJECTS = $(ASM_SOURCES:$(SRC_DIR)%.s=$(OUT_DIR)%.o)
 GAME_PATH = $(OUT_DIR)/$(GAME_TARGET).nes
 
 # Variables to build tests
@@ -48,8 +49,9 @@ OBJECTS_TO_TEST = $(filter-out $(OUT_DIR)/assert.o $(OUT_DIR)/main.o, $(OBJECTS)
 # $(info The ^ is "$^")
 # $(info Headers is "$(HEADERS)")
 # $(info Sources is "$(SOURCES)")
-# $(info ASM Sources is "$(ASM_SOURCES)")
 # $(info Object files is "$(OBJECTS)")
+# $(info ASM Sources is "$(ASM_SOURCES)")
+# $(info ASM Objects is "$(ASM_OBJECTS)")
 # $(info SOURCES_TO_TEST is "$(SOURCES_TO_TEST)")
 # $(info OBJECTS_TO_TEST is "$(OBJECTS_TO_TEST)")
 
@@ -60,7 +62,7 @@ OBJECTS_TO_TEST = $(filter-out $(OUT_DIR)/assert.o $(OUT_DIR)/main.o, $(OBJECTS)
 .PHONY: clean all
 
 # Don't delete intermediate `*.o` files
-.PRECIOUS: $(OUT_DIR)/%.o
+.PRECIOUS: $(OUT_DIR)/%.o $(OUT_DIR)/%.s
 
 
 #### Rules ####
@@ -88,11 +90,7 @@ $(OUT_DIR)/crt0.o: $(SRC_DIR)/crt0.s
 # project not being rebuilt when changing ASM files.
 
 # FIXME - We're rebuilding every source file any time any source file changes.
-$(OUT_DIR)/%.o: $(SOURCES) $(HEADERS)
-# Ugly hacks. This dir needs to exist for cc65 to be able to output files to it.
-# Git ignore currently ignores everything under build, so I don't commit this directory
-# So instead, let's make this directory when we need it.
-	@mkdir $(OUT_DIR)/mmc5 -p
+$(OUT_DIR)/%.o: $(SOURCES) $(HEADERS) force
 	cc65 $(SRC_DIR)/$*.c -o $(OUT_DIR)/$*.s $(CCFLAGS)
 	ca65 $(OUT_DIR)/$*.s -o $(OUT_DIR)/$*.o $(CAFLAGS)
 
@@ -101,12 +99,27 @@ $(OUT_DIR)/%.nes: $(OBJECTS) $(OUT_DIR)/crt0.o | $(CONFIG_FILE)
 # -C: Config file. aka ld65's linker script.
 	ld65 $(LDFLAGS) -o $@ $^ nes.lib
 
+# Rules for building tests
+
 # All test artifacts can be found under `build/tests`
 # FIXME - why are all of my makefile rules so ugly?
-$(OUT_DIR)/$(TEST_DIR)/%.o: $(TEST_SOURCES) $(SOURCES_TO_TEST)
-	@mkdir $(OUT_DIR)/$(TEST_DIR) -p
+$(OUT_DIR)/$(TEST_DIR)/%.o: $(TEST_SOURCES) $(SOURCES_TO_TEST) force
 	cc65 $(TEST_DIR)/$*.c -o $(OUT_DIR)/$(TEST_DIR)/$*.s $(TEST_CCFLAGS)
 	ca65 $(OUT_DIR)/$(TEST_DIR)/$*.s -o $(OUT_DIR)/$(TEST_DIR)/$*.o $(CAFLAGS)
 
-$(TEST_BINARY): $(TEST_OBJECTS) $(OBJECTS_TO_TEST)
+$(ASM_OBJECTS): $(ASM_SOURCES) force
+	$(info The heck is this? "$($*:$(OUT_DIR)%.o=$(SRC_DIR)%.s)")
+	ca65 $($*:$(OUT_DIR)%.o=$(SRC_DIR)%.s) -o $*.o $(CAFLAGS)
+
+$(TEST_BINARY): $(TEST_OBJECTS) $(OBJECTS_TO_TEST) $(ASM_OBJECTS)
 	ld65 $(TEST_LDFLAGS) -o $@ $^ sim6502.lib
+
+
+#### Hacks ####
+
+# Ugly hacks. This dir needs to exist for cc65 to be able to output files to it.
+# Git ignore currently ignores everything under build, so I don't commit this
+# directory. So instead, let's make this directory when we need it.
+force:
+	@mkdir $(OUT_DIR)/mmc5 -p
+	@mkdir $(OUT_DIR)/$(TEST_DIR) -p
