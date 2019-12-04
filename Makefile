@@ -17,7 +17,7 @@ IFLAGS = $(patsubst %,-I%,$(subst :, ,$(IDIR)))
 CAFLAGS = $(IFLAGS) -g
 CCFLAGS = -Oi --add-source $(IFLAGS) -g
 LDFLAGS = -C $(CONFIG_FILE) -m $(OUT_DIR)/$*.map --dbgfile $(OUT_DIR)/$*.dbg
-# `-S` start address is 0x8000 minus space for the header.
+# -S` start address is 0x8000 minus space for the header.
 DAFLAGS = -o $(OUT_DIR)/$(GAME_TARGET).disas --comments 4 -S 0x7FF0
 HEADERS = $(wildcard include/*.h)
 # Select all `.c` files under the source directory recursively
@@ -31,33 +31,20 @@ GAME_PATH = $(OUT_DIR)/$(GAME_TARGET).nes
 TEST_DIR = tests
 TEST_OUT_DIR = $(OUT_DIR)/$(TEST_DIR)
 TEST_SOURCES = $(wildcard $(TEST_DIR)/*.c) $(wildcard $(TEST_DIR)/**/*.c)
+
+SOURCES_TO_TEST = $(filter-out $(SRC_DIR)/assert.c $(SRC_DIR)/main.c, $(SOURCES))
+
 TEST_OBJECTS = $(TEST_SOURCES:%.c=$(OUT_DIR)/%.o)
-TEMP = $(ASM_SOURCES:$(SRC_DIR)/%.s=%.o)
-TEST_ASM_OBJECTS = $(filter-out crt0.o, $(TEMP))
+TEST_ALL_ASM = $(TEST_SOURCES:%.c=$(OUT_DIR)/%.s) $(ASM_SOURCES)
+ASM_TO_OBJ_TEMP_1 = $(TEST_ALL_ASM:%.s=%.o)
+ASM_TO_OBJ_TEMP_2 = $(ASM_TO_OBJ_TEMP_1:$(SRC_DIR)%=$(TEST_OUT_DIR)%))
+TEST_ASM_OBJECTS = $(filter-out build/tests/crt0.o, $(ASM_TO_OBJ_TEMP_2))
+# Assert is mocked out in our tests. Test has its own main.
+OBJECTS_TO_TEST = $(filter-out $(OUT_DIR)/assert.o $(OUT_DIR)/main.o, $(OBJECTS))
+
 TEST_BINARY = $(OUT_DIR)/$(TEST_DIR)/test_$(GAME_TARGET)
 TEST_CCFLAGS = $(CCFLAGS) --target sim6502
 TEST_LDFLAGS = --target sim6502
-# Assert is mocked out in our tests. Test has its own main.
-SOURCES_TO_TEST = $(filter-out $(SRC_DIR)/assert.c $(SRC_DIR)/main.c, $(SOURCES))
-OBJECTS_TO_TEST = $(filter-out $(OUT_DIR)/assert.o $(OUT_DIR)/main.o, $(OBJECTS))
-
-
-#### Print debugging ####
-
-# $(info CAFLAGS="$(CAFLAGS)")
-# $(info SOURCES="$(SOURCES)")
-# $(info The * is "$*")
-# $(info The @ is "$@")
-# $(info The < is "$<")
-# $(info The ^ is "$^")
-# $(info Headers is "$(HEADERS)")
-# $(info Sources is "$(SOURCES)")
-# $(info Object files is "$(OBJECTS)")
-# $(info ASM Sources is "$(ASM_SOURCES)")
-# $(info ASM Objects is "$(ASM_OBJECTS)")
-# $(info SOURCES_TO_TEST is "$(SOURCES_TO_TEST)")
-# $(info OBJECTS_TO_TEST is "$(OBJECTS_TO_TEST)")
-$(info TEST_ASM_OBJECTS is "$(TEST_ASM_OBJECTS)")
 
 
 #### Special Built-in Targets ####
@@ -92,8 +79,9 @@ $(OUT_DIR)/crt0.o: $(SRC_DIR)/crt0.s
 
 # TODO
 # project not being rebuilt when changing ASM files.
+# Try using $? instead of $^ to select only prerequisites newer than target.
+# We're rebuilding every source file any time any source file changes.
 
-# FIXME - We're rebuilding every source file any time any source file changes.
 $(OUT_DIR)/%.o: $(SOURCES) $(HEADERS) force
 	cc65 $(SRC_DIR)/$*.c -o $(OUT_DIR)/$*.s $(CCFLAGS)
 	ca65 $(OUT_DIR)/$*.s -o $(OUT_DIR)/$*.o $(CAFLAGS)
@@ -101,23 +89,21 @@ $(OUT_DIR)/%.o: $(SOURCES) $(HEADERS) force
 $(OUT_DIR)/%.nes: $(OBJECTS) $(OUT_DIR)/crt0.o | $(CONFIG_FILE)
 # -m: Generate map file
 # -C: Config file. aka ld65's linker script.
-# TODO: try using $? instead of $^ to select only prerequisites newer than target.
 	ld65 $(LDFLAGS) -o $@ $^ nes.lib
 
-# Rules for building tests
-# All test artifacts can be found under `build/tests`
 
-$(TEST_OUT_DIR)/$(TEST_ASM_OBJECTS): $(ASM_SOURCES) force
-	$(info ===> "$*")
-	@# ca65 $($*:$(OUT_DIR)%.o=$(SRC_DIR)%.s) -o $*.o $(CAFLAGS)
-	ca65 $*.s -o $*.o $(CAFLAGS)
-	@# ca65 $(TEST_ASM_OBJECTS:$(OUT_DIR)/$(TEST_DIR)%.o=$(SRC_DIR)%.s) -o $*.o $(CAFLAGS)
+#### Testing ####
 
-$(TEST_OUT_DIR)/%.o: $(TEST_SOURCES) $(SOURCES_TO_TEST) force
+$(TEST_OUT_DIR)/%.s: $(TEST_SOURCES) force
 	cc65 $(TEST_DIR)/$*.c -o $(TEST_OUT_DIR)/$*.s $(TEST_CCFLAGS)
+
+# $(OUT_DIR)/%.o: $(TEST_ALL_ASM) force
+# 	ca65 $(SRC_DIR)/$*.s -o $(OUR_DIR)/$*.o $(CAFLAGS)
+
+$(TEST_OUT_DIR)/%.o: $(TEST_ALL_ASM) force
 	ca65 $(TEST_OUT_DIR)/$*.s -o $(TEST_OUT_DIR)/$*.o $(CAFLAGS)
 
-$(TEST_BINARY): $(TEST_OBJECTS) $(OBJECTS_TO_TEST) $(TEST_OUT_DIR)/$(TEST_ASM_OBJECTS)
+$(TEST_BINARY): $(OBJECTS_TO_TEST) $(TEST_ASM_OBJECTS)
 	ld65 $(TEST_LDFLAGS) -o $@ $^ sim6502.lib
 
 
@@ -129,3 +115,10 @@ $(TEST_BINARY): $(TEST_OBJECTS) $(OBJECTS_TO_TEST) $(TEST_OUT_DIR)/$(TEST_ASM_OB
 force:
 	@mkdir $(OUT_DIR)/mmc5 -p
 	@mkdir $(TEST_OUT_DIR) -p
+
+
+
+$(info OBJECTS_TO_TEST is "$(OBJECTS_TO_TEST)")
+$(info TEST_ASM_OBJECTS is "$(TEST_ASM_OBJECTS)")
+$(info TEST_OBJECTS is "$(TEST_OBJECTS)")
+$(info TEST_ALL_ASM is "$(TEST_ALL_ASM)")
