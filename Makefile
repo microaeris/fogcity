@@ -4,6 +4,7 @@ GAME_TARGET = fog_city
 OUT_DIR = build
 SRC_DIR = src
 LIB_DIR = lib
+TEST_DIR = tests
 CONFIG_FILE = cfg/mmc5.cfg
 MESEN = ~/insync/linux/nesdev/nes-tools/Mesen.exe
 # Include directories separated by colons
@@ -21,30 +22,39 @@ LDFLAGS = -C $(CONFIG_FILE) -m $(OUT_DIR)/$*.map --dbgfile $(OUT_DIR)/$*.dbg
 DAFLAGS = -o $(OUT_DIR)/$(GAME_TARGET).disas --comments 4 -S 0x7FF0
 HEADERS = $(wildcard include/*.h)
 # Select all `.c` files under the source directory recursively
-SOURCES = $(wildcard $(SRC_DIR)/**/*.c) $(wildcard $(SRC_DIR)/*.c)
+SOURCES_TEMP = $(wildcard $(SRC_DIR)/**/*.c) $(wildcard $(SRC_DIR)/*.c)
+SOURCES = $(filter-out $(SRC_DIR)/$(TEST_DIR)/%, $(SOURCES_TEMP))
 OBJECTS = $(SOURCES:$(SRC_DIR)%.c=$(OUT_DIR)%.o)
 ASM_SOURCES = $(wildcard $(SRC_DIR)/*.s) $(wildcard $(SRC_DIR)/**/*.s)
 ASM_OBJECTS = $(ASM_SOURCES:$(SRC_DIR)%.s=$(OUT_DIR)%.o)
 GAME_PATH = $(OUT_DIR)/$(GAME_TARGET).nes
 
 # Variables to build tests
-TEST_DIR = tests
+
 TEST_OUT_DIR = $(OUT_DIR)/$(TEST_DIR)
-TEST_SOURCES = $(wildcard $(TEST_DIR)/*.c) $(wildcard $(TEST_DIR)/**/*.c)
-
-SOURCES_TO_TEST = $(filter-out $(SRC_DIR)/assert.c $(SRC_DIR)/main.c, $(SOURCES))
-
-TEST_OBJECTS = $(TEST_SOURCES:%.c=$(OUT_DIR)/%.o)
-TEST_ALL_ASM = $(TEST_SOURCES:%.c=$(OUT_DIR)/%.s) $(ASM_SOURCES)
-ASM_TO_OBJ_TEMP_1 = $(TEST_ALL_ASM:%.s=%.o)
-ASM_TO_OBJ_TEMP_2 = $(ASM_TO_OBJ_TEMP_1:$(SRC_DIR)%=$(TEST_OUT_DIR)%))
-TEST_ASM_OBJECTS = $(filter-out build/tests/crt0.o, $(ASM_TO_OBJ_TEMP_2))
+TEST_SRC = $(wildcard $(SRC_DIR)/$(TEST_DIR)/*.c) $(wildcard $(SRC_DIR)/$(TEST_DIR)/**/*.c)
+TEST_SRC_TO_ASM = $(TEST_SRC:$(SRC_DIR)/%.c=$(OUT_DIR)/%.s)
+TEST_SRC_TO_OBJ = $(TEST_SRC:$(SRC_DIR)/%.c=$(OUT_DIR)/%.o)
+TEST_AND_GAME_ASM = $(TEST_SRC_TO_ASM) $(ASM_SOURCES)
+TEST_ASM_TO_OBJ = $(TEST_SRC_TO_ASM:%.s=%.o)
+GAME_ASM_TO_OBJ = $(ASM_SOURCES:$(SRC_DIR)%.s=$(OUT_DIR)%.o)
+GAME_ASM_TO_OBJ_FILTERED = $(filter-out build/tests/crt0.o, $(GAME_ASM_TO_OBJ))
 # Assert is mocked out in our tests. Test has its own main.
-OBJECTS_TO_TEST = $(filter-out $(OUT_DIR)/assert.o $(OUT_DIR)/main.o, $(OBJECTS))
-
+GAME_OBJ_FILTERED = $(filter-out $(OUT_DIR)/assert.o $(OUT_DIR)/main.o, $(OBJECTS))
+TEST_AND_GAME_OBJ = $(GAME_ASM_TO_OBJ_FILTERED) $(TEST_ASM_TO_OBJ) $(GAME_OBJ_FILTERED)
 TEST_BINARY = $(OUT_DIR)/$(TEST_DIR)/test_$(GAME_TARGET)
 TEST_CCFLAGS = $(CCFLAGS) --target sim6502
 TEST_LDFLAGS = --target sim6502
+
+
+
+# SOURCES_TO_TEST = $(filter-out $(SRC_DIR)/assert.c $(SRC_DIR)/main.c, $(SOURCES))
+$(info TEST_SRC is "$(TEST_SRC)")
+$(info TEST_SRC_TO_OBJ is "$(TEST_SRC_TO_OBJ)")
+$(info TEST_SRC_TO_ASM is "$(TEST_SRC_TO_ASM)")
+$(info ASM_SOURCES is "$(ASM_SOURCES)")
+$(info GAME_ASM_TO_OBJ is "$(GAME_ASM_TO_OBJ)")
+$(info TEST_AND_GAME_OBJ is "$(TEST_AND_GAME_OBJ)")
 
 
 #### Special Built-in Targets ####
@@ -71,7 +81,7 @@ run: $(GAME_PATH)
 disas: $(GAME_PATH)
 	da65 $(DAFLAGS) $<
 
-test: $(TEST_BINARY)
+test: $(GAME_PATH) $(TEST_BINARY)
 	sim65 -v $(TEST_BINARY)
 
 $(OUT_DIR)/crt0.o: $(SRC_DIR)/crt0.s
@@ -94,16 +104,16 @@ $(OUT_DIR)/%.nes: $(OBJECTS) $(OUT_DIR)/crt0.o | $(CONFIG_FILE)
 
 #### Testing ####
 
-$(TEST_OUT_DIR)/%.s: $(TEST_SOURCES) force
-	cc65 $(TEST_DIR)/$*.c -o $(TEST_OUT_DIR)/$*.s $(TEST_CCFLAGS)
+$(TEST_OUT_DIR)/%.s: $(TEST_SRC) force
+	$(info 3 ======================= hello from test)
+	cc65 $(SRC_DIR)/$(TEST_DIR)/$*.c -o $(TEST_OUT_DIR)/$*.s $(TEST_CCFLAGS)
 
-# $(OUT_DIR)/%.o: $(TEST_ALL_ASM) force
-# 	ca65 $(SRC_DIR)/$*.s -o $(OUR_DIR)/$*.o $(CAFLAGS)
-
-$(TEST_OUT_DIR)/%.o: $(TEST_ALL_ASM) force
+$(TEST_OUT_DIR)/%.o: $(TEST_AND_GAME_ASM) force
+	$(info 2 ======================= hello from test)
 	ca65 $(TEST_OUT_DIR)/$*.s -o $(TEST_OUT_DIR)/$*.o $(CAFLAGS)
 
-$(TEST_BINARY): $(OBJECTS_TO_TEST) $(TEST_ASM_OBJECTS)
+$(TEST_BINARY): $(TEST_AND_GAME_OBJ)
+	$(info 1 ======================= hello from test)
 	ld65 $(TEST_LDFLAGS) -o $@ $^ sim6502.lib
 
 
@@ -115,10 +125,3 @@ $(TEST_BINARY): $(OBJECTS_TO_TEST) $(TEST_ASM_OBJECTS)
 force:
 	@mkdir $(OUT_DIR)/mmc5 -p
 	@mkdir $(TEST_OUT_DIR) -p
-
-
-
-$(info OBJECTS_TO_TEST is "$(OBJECTS_TO_TEST)")
-$(info TEST_ASM_OBJECTS is "$(TEST_ASM_OBJECTS)")
-$(info TEST_OBJECTS is "$(TEST_OBJECTS)")
-$(info TEST_ALL_ASM is "$(TEST_ALL_ASM)")
