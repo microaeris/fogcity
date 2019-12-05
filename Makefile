@@ -47,16 +47,6 @@ TEST_CCFLAGS = $(CCFLAGS) --target sim6502
 TEST_LDFLAGS = --target sim6502
 
 
-
-# SOURCES_TO_TEST = $(filter-out $(SRC_DIR)/assert.c $(SRC_DIR)/main.c, $(SOURCES))
-$(info TEST_SRC is "$(TEST_SRC)")
-$(info TEST_SRC_TO_OBJ is "$(TEST_SRC_TO_OBJ)")
-$(info TEST_SRC_TO_ASM is "$(TEST_SRC_TO_ASM)")
-$(info ASM_SOURCES is "$(ASM_SOURCES)")
-$(info GAME_ASM_TO_OBJ is "$(GAME_ASM_TO_OBJ)")
-$(info TEST_AND_GAME_OBJ is "$(TEST_AND_GAME_OBJ)")
-
-
 #### Special Built-in Targets ####
 
 # Why is `all` a part of the phony target?

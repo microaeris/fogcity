@@ -1,7 +1,7 @@
 #pragma rodata-name ("CODE")
 #pragma code-name ("CODE")
 
-#include <src/mmc5/bank_helpers_impl.h>
+#include <mmc5/bank_helpers_impl.h>
 
 
 void banked_call(unsigned char bankId, void (*method)(void))
