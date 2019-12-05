@@ -414,11 +414,7 @@ detectNTSC:
     .include "lib/neslib.s"
     .include "lib/nesdoug.s"
     .include "music/famitone2.s"
-
-; FIXME - errr is this the best way to organize global lib functions?
-abort:
-    ; `*` - PC counter operator
-    jmp *
+    .include "abort.s"
 
 
 .segment "RODATA"

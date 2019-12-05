@@ -8,7 +8,7 @@ TEST_DIR = tests
 CONFIG_FILE = cfg/mmc5.cfg
 MESEN = ~/insync/linux/nesdev/nes-tools/Mesen.exe
 # Include directories separated by colons
-IDIR = include:.
+IDIR = include:.:src
 # Create a list of strings from IDIR and prepend all items with `-I`
 IFLAGS = $(patsubst %,-I%,$(subst :, ,$(IDIR)))
 # Debug info generation is always on. Since the generated debug info is not
@@ -35,11 +35,11 @@ TEST_OUT_DIR = $(OUT_DIR)/$(TEST_DIR)
 TEST_SRC = $(wildcard $(SRC_DIR)/$(TEST_DIR)/*.c) $(wildcard $(SRC_DIR)/$(TEST_DIR)/**/*.c)
 TEST_SRC_TO_ASM = $(TEST_SRC:$(SRC_DIR)/%.c=$(OUT_DIR)/%.s)
 TEST_SRC_TO_OBJ = $(TEST_SRC:$(SRC_DIR)/%.c=$(OUT_DIR)/%.o)
-TEST_AND_GAME_ASM = $(TEST_SRC_TO_ASM) $(ASM_SOURCES)
 TEST_ASM_TO_OBJ = $(TEST_SRC_TO_ASM:%.s=%.o)
-GAME_ASM_TO_OBJ = $(ASM_SOURCES:$(SRC_DIR)%.s=$(OUT_DIR)%.o)
-GAME_ASM_TO_OBJ_FILTERED = $(filter-out build/tests/crt0.o, $(GAME_ASM_TO_OBJ))
-# Assert is mocked out in our tests. Test has its own main.
+# GAME_ASM_TO_OBJ = $(ASM_SOURCES:$(SRC_DIR)%.s=$(OUT_DIR)%.o)
+# GAME_ASM_TO_OBJ_FILTERED = $(filter-out build/crt0.o, $(GAME_ASM_TO_OBJ))
+GAME_ASM = $(SRC_DIR)/$(TEST_DIR)/all_src_asm.s
+GAME_ASM_TO_OBJ = $(GAME_ASM:$(SRC_DIR)%.s=$(OUT_DIR)%.o)
 GAME_OBJ_FILTERED = $(filter-out $(OUT_DIR)/assert.o $(OUT_DIR)/main.o, $(OBJECTS))
 TEST_AND_GAME_OBJ = $(GAME_ASM_TO_OBJ_FILTERED) $(TEST_ASM_TO_OBJ) $(GAME_OBJ_FILTERED)
 TEST_BINARY = $(OUT_DIR)/$(TEST_DIR)/test_$(GAME_TARGET)
@@ -105,15 +105,15 @@ $(OUT_DIR)/%.nes: $(OBJECTS) $(OUT_DIR)/crt0.o | $(CONFIG_FILE)
 #### Testing ####
 
 $(TEST_OUT_DIR)/%.s: $(TEST_SRC) force
-	$(info 3 ======================= hello from test)
 	cc65 $(SRC_DIR)/$(TEST_DIR)/$*.c -o $(TEST_OUT_DIR)/$*.s $(TEST_CCFLAGS)
 
-$(TEST_OUT_DIR)/%.o: $(TEST_AND_GAME_ASM) force
-	$(info 2 ======================= hello from test)
-	ca65 $(TEST_OUT_DIR)/$*.s -o $(TEST_OUT_DIR)/$*.o $(CAFLAGS)
+$(TEST_ASM_TO_OBJ): $(TEST_SRC_TO_ASM) force
+	ca65 $*.s -o $*.o $(CAFLAGS)
 
-$(TEST_BINARY): $(TEST_AND_GAME_OBJ)
-	$(info 1 ======================= hello from test)
+$(GAME_ASM_TO_OBJ): $(GAME_ASM) force
+	ca65 $(patsubst $(OUT_DIR)%,$(SRC_DIR)%,$*).s -o $*.o $(CAFLAGS)
+
+$(TEST_BINARY): $(TEST_AND_GAME_OBJ) $(GAME_ASM_TO_OBJ)
 	ld65 $(TEST_LDFLAGS) -o $@ $^ sim6502.lib
 
 

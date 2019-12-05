@@ -1,0 +1,7 @@
+    .include "mmc5/mmc5_macros.s"
+    .include "mmc5/mmc5_cfg.s"
+    .include "mmc5/bank_helpers.s"
+    ; .include "lib/neslib.s"
+    ; .include "lib/nesdoug.s"
+    ; .include "music/famitone2.s"
+    .include "abort.s"
