@@ -6,6 +6,12 @@
 
 // Maximum level of recursion to allow with banked_call and similar functions.
 #define MAX_BANK_DEPTH 16
+#define ID_BITS             2
+#define LRU_BANK_AREA_INIT  0x24    // 0b00100100
+#define LRU_IDX_0_MASK      0x03    // 0b0000_0011
+#define LRU_IDX_1_MASK      0x0C    // 0b0000_1100
+#define LRU_IDX_2_MASK      0x30    // 0b0011_0000
+#define GET_LRU(idx) ((lru_bank_area >> (idx * ID_BITS)) & LRU_IDX_0_MASK)
 
 uint8_t bank_level;
 uint8_t bank_buffer[MAX_BANK_DEPTH];

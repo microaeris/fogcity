@@ -13,15 +13,6 @@ bank_area_id_t lru_bank_area;
 #pragma rodata-name ("CODE")
 #pragma code-name ("CODE")
 
-#define ID_BITS             2
-#define LRU_BANK_AREA_INIT  0x24    // 0b00100100
-#define LRU_IDX_0_MASK      0x03    // 0b0000_0011
-#define LRU_IDX_1_MASK      0x0C    // 0b0000_1100
-#define LRU_IDX_2_MASK      0x30    // 0b0011_0000
-
-#define GET_LRU(idx) ((lru_bank_area >> (idx * ID_BITS)) & LRU_IDX_0_MASK)
-
-
 void bank_helpers_init(void)
 {
     lru_bank_area = LRU_BANK_AREA_INIT;
@@ -66,10 +57,11 @@ bank_area_id_t choose_bank_area(uint8_t bank_id)
 
 void banked_call(uint8_t bank_id, void (*method)(void))
 {
+    bank_area_id_t bank_area_id;
     ASSERT((uint16_t)method);
     ASSERT(bank_level < MAX_BANK_DEPTH);
 
-    bank_area_id_t bank_area_id = choose_bank_area(bank_id);
+    bank_area_id = choose_bank_area(bank_id);
     bank_push(bank_id, bank_area_id);
     (*method)();
     bank_pop();
@@ -101,9 +93,11 @@ void bank_push(uint8_t bank_id, bank_area_id_t bank_area_id)
 
 void bank_pop(void)
 {
+    uint8_t bank_id;
+    bank_area_id_t bank_area_id;
     --bank_level;
-    uint8_t bank_id = bank_buffer[bank_level-1];
-    bank_area_id_t bank_area_id = choose_bank_area(bank_id);
+    bank_id = bank_buffer[bank_level-1];
+    bank_area_id = choose_bank_area(bank_id);
 
     if (bank_level > 0) {
         switch (bank_area_id) {
