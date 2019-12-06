@@ -36,8 +36,6 @@ TEST_SRC = $(wildcard $(SRC_DIR)/$(TEST_DIR)/*.c) $(wildcard $(SRC_DIR)/$(TEST_D
 TEST_SRC_TO_ASM = $(TEST_SRC:$(SRC_DIR)/%.c=$(OUT_DIR)/%.s)
 TEST_SRC_TO_OBJ = $(TEST_SRC:$(SRC_DIR)/%.c=$(OUT_DIR)/%.o)
 TEST_ASM_TO_OBJ = $(TEST_SRC_TO_ASM:%.s=%.o)
-# GAME_ASM_TO_OBJ = $(ASM_SOURCES:$(SRC_DIR)%.s=$(OUT_DIR)%.o)
-# GAME_ASM_TO_OBJ_FILTERED = $(filter-out build/crt0.o, $(GAME_ASM_TO_OBJ))
 GAME_ASM = $(SRC_DIR)/$(TEST_DIR)/all_src_asm.s
 GAME_ASM_TO_OBJ = $(GAME_ASM:$(SRC_DIR)%.s=$(OUT_DIR)%.o)
 GAME_OBJ_FILTERED = $(filter-out $(OUT_DIR)/assert.o $(OUT_DIR)/main.o, $(OBJECTS))
@@ -61,8 +59,7 @@ TEST_LDFLAGS = --target sim6502
 all: $(GAME_PATH)
 
 clean:
-# Delete all files under ./build.
-# `-f` = force, `-v` = verbose, `-r` = recursive
+# -f` = force, `-v` = verbose, `-r` = recursive
 	@rm -rfv $(OUT_DIR)/*
 
 run: $(GAME_PATH)
@@ -78,7 +75,7 @@ $(OUT_DIR)/crt0.o: $(SRC_DIR)/crt0.s
 	ca65 $< -o $@ $(CAFLAGS)
 
 # TODO
-# project not being rebuilt when changing ASM files.
+# Project not being rebuilt when changing ASM files.
 # Try using $? instead of $^ to select only prerequisites newer than target.
 # We're rebuilding every source file any time any source file changes.
 

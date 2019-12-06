@@ -5,7 +5,7 @@
 
 #pragma rodata-name ("BANK_00")
 #pragma code-name ("BANK_00")
-const unsigned char TEXT_00[]="BANK_00";
+const uint8_t TEXT_00[]="BANK_00";
 
 void function_bank_00(void){
     ppu_off();
@@ -16,9 +16,9 @@ void function_bank_00(void){
 
 #pragma rodata-name ("CODE")
 #pragma code-name ("CODE")
-const unsigned char text[]="FIXED BANK";
+const uint8_t text[]="FIXED BANK";
 
-const unsigned char palette[]={
+const uint8_t palette[]={
     0x0f, 0x17, 0x27, 0x36,
     0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00,
@@ -40,6 +40,7 @@ void main (void) {
 
     // ppu_on_all(); // turn on screen
 
+    bank_helpers_init();
     banked_call(0x00, function_bank_00);
 
     while (1){

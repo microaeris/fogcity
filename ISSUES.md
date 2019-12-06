@@ -13,6 +13,9 @@ Makefile:107: recipe for target 'build/tests/test_fog_city' failed
 make: *** [build/tests/test_fog_city] Error 1
 ```
 
+* Test out register variables. See [Ullrich's C coding guide](https://www.cc65.org/doc/coding.html).
+
+
 ## Closed
 
 * While debugging in FCEUX, after bank switching PRG memory area 3, memory area 4 loses its debug symbols. Symbols can't be reloaded and name list file is still present. 
