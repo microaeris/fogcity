@@ -39,15 +39,15 @@ bank_area_id_t choose_bank_area(uint8_t bank_id)
         // Bank we are about to call into is first element in the queue.
         // We need to move it to the back of the queue.
         lru_bank_area >>= ID_BITS;
-        lru_bank_area &= 0xCF;  // = 0b11001111 = ~LRU_IDX_1_MASK;
-        lru_bank_area |= bank_area_id << 4; // 4 = ID_BITS * 2
+        lru_bank_area &= 0xCF;  // = 0b11001111 = ~LRU_IDX_2_MASK;
+        lru_bank_area |= (bank_area_id << 4); // 4 = ID_BITS * 2
     } else if (bank_area_id == GET_LRU(1)) {
         temp = GET_LRU(2);
         lru_bank_area &= 0xC3;  // = 0b11000011 = ~(LRU_IDX_1_MASK | LRU_IDX_2_MASK);
         lru_bank_area |= bank_area_id << 4; // 4 = ID_BITS * 2
         lru_bank_area |= temp << 2;         // 2 = ID_BITS * 1
     }
-    // else bank_area_id == GET_LRU(2), in which case the least recently used
+    // else bank_area_id == GET_LRU(2), in which case the most recently used
     // item is already at the end of the list.
 
     return bank_area_id;

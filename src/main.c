@@ -18,30 +18,54 @@ void function_bank_00(void){
 #pragma code-name ("CODE")
 const uint8_t text[]="FIXED BANK";
 
-const uint8_t palette[]={
-    0x0f, 0x17, 0x27, 0x36,
-    0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00,
+// const uint8_t palette[]={
+//     0x0f, 0x17, 0x27, 0x36,
+//     0x00, 0x00, 0x00, 0x00,
+//     0x00, 0x00, 0x00, 0x00,
+//     0x00, 0x00, 0x00, 0x00,
+// };
+
+#define BLACK 0x0f
+#define DK_GY 0x00
+#define LT_GY 0x10
+#define WHITE 0x30
+
+const unsigned char palette[]={
+BLACK, DK_GY, LT_GY, WHITE,
+0,0,0,0,
+0,0,0,0,
+0,0,0,0
 };
 
+void function_bank_code(void){
+    ppu_off();
+    vram_adr(NTADR_A(1,4));
+    vram_write(text, sizeof(text));
+    ppu_on_all();
+}
+
 void main (void) {
-    // ppu_off(); // screen off
+    ppu_off(); // screen off
 
-    // pal_bg(palette); // load the palette
+    pal_bg(palette); // load the palette
+    pal_spr(palette); // load the sprite palette
 
-    // vram_adr(NAMETABLE_A);
-    // // this sets a start position on the BG, top left of screen
-    // // vram_adr() and vram_unrle() need to be done with the screen OFF
+    vram_adr(NAMETABLE_A);
+    // this sets a start position on the BG, top left of screen
+    // vram_adr() and vram_unrle() need to be done with the screen OFF
 
     // vram_unrle(bg_test);
-    // // this unpacks an rle compressed full nametable
-    // // created by NES Screen Tool
+    // this unpacks an rle compressed full nametable
+    // created by NES Screen Tool
 
-    // ppu_on_all(); // turn on screen
+    vram_adr(NTADR_A(1,4));
+    vram_write(text, sizeof(text));
 
-    bank_helpers_init();
-    banked_call(0x00, function_bank_00);
+    ppu_on_all(); // turn on screen
+
+    // bank_helpers_init();
+    // banked_call(0x00, function_bank_00);
+    // function_bank_code();
 
     while (1){
         // infinite loop

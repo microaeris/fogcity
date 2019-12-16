@@ -442,3 +442,8 @@ sounds_data:
 ; .segment "CHR_00"
 
 ;   .incbin "nes_st/bg_test.chr"
+
+.segment "CHR_00"
+
+    .incbin "nes_st/Alpha.chr"
+    .incbin "nes_st/Alpha2.chr"

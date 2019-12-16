@@ -7,7 +7,7 @@
 // Maximum level of recursion to allow with banked_call and similar functions.
 #define MAX_BANK_DEPTH 16
 #define ID_BITS             2
-#define LRU_BANK_AREA_INIT  0x24    // 0b00100100
+#define LRU_BANK_AREA_INIT  0x39    // 0b00111001
 #define LRU_IDX_0_MASK      0x03    // 0b0000_0011
 #define LRU_IDX_1_MASK      0x0C    // 0b0000_1100
 #define LRU_IDX_2_MASK      0x30    // 0b0011_0000
@@ -25,7 +25,7 @@ extern uint8_t PRG_BANK_3;
 #pragma zpsym ("PRG_BANK_3");
 
 typedef enum bank_area_id_t {
-    PRG_BANK_AREA_1 = 0,
+    PRG_BANK_AREA_1 = 1,
     PRG_BANK_AREA_2,
     PRG_BANK_AREA_3
 } bank_area_id_t;

@@ -2,6 +2,7 @@
 
 ## Open
 
+* CHR_00 size is 4k. doesn't match the size of everything else and doesn't jive with how ever I'll be swapping chr banks.
 * Tests don't build. `sim6502.lib` uses up most of the zero page, leaving only 1 byte for my own variables. Linking fails with the following error.
     * To reproduce, checkout `f6fe1cdfa56ceb37fb6720c235f0dca30560aa4d` and run `make test`.
 
