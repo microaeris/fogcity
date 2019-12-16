@@ -9,7 +9,7 @@ const uint8_t TEXT_00[]="BANK_00";
 
 void function_bank_00(void){
     ppu_off();
-    vram_adr(NTADR_A(1,4));
+    vram_adr(NTADR_A(1,6));
     vram_write(TEXT_00,sizeof(TEXT_00));
     ppu_on_all();
 }
@@ -39,7 +39,7 @@ BLACK, DK_GY, LT_GY, WHITE,
 
 void function_bank_code(void){
     ppu_off();
-    vram_adr(NTADR_A(1,4));
+    vram_adr(NTADR_A(1,2));
     vram_write(text, sizeof(text));
     ppu_on_all();
 }
@@ -58,14 +58,11 @@ void main (void) {
     // this unpacks an rle compressed full nametable
     // created by NES Screen Tool
 
-    vram_adr(NTADR_A(1,4));
-    vram_write(text, sizeof(text));
-
     ppu_on_all(); // turn on screen
 
-    // bank_helpers_init();
-    // banked_call(0x00, function_bank_00);
-    // function_bank_code();
+    function_bank_code();
+    bank_helpers_init();
+    banked_call(0x00, function_bank_00);
 
     while (1){
         // infinite loop
